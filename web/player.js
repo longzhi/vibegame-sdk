@@ -95,6 +95,12 @@
     el.addEventListener("pointerdown", on); el.addEventListener("pointerup", off); el.addEventListener("pointerleave", off); el.addEventListener("pointercancel", off);
   }
   canvas.addEventListener("pointerdown", startAudio);
+  // 嵌着这个页面的网页按键：postMessage({ vgKey: "a", down: true })。键名和 data-key 一样。
+  addEventListener("message", (e) => {
+    const d = e.data, k = d && KEY[d.vgKey];
+    if (!k) return;
+    if (d.down) { touch |= k; tapped |= k; startAudio(); } else touch &= ~k;
+  });
   // 页面看不见了（切走、锁屏）：游戏停下，声音也停。回来接着走。
   document.addEventListener("visibilitychange", () => {
     if (!audio) return;
@@ -114,7 +120,7 @@
 
   // 浏览器要人先按一下才肯出声：第一次按键或点画面时开声音。
   function startAudio() {
-    if (audio) return;
+    if (audio) { if (audio.state === "suspended" && !document.hidden) audio.resume(); return; }
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
     audio = new AC();

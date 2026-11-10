@@ -38,6 +38,8 @@ vibegame push --watch         # 推到掌机上直接开，一改就再推
 
 `vibegame run examples/courier` 开窗口玩，`vibegame web examples/courier` 出网页版。
 
+网页版放进自己的网页：`<iframe src="courier.html?embed">`，只剩画面。外面的网页用 `postMessage({ vgKey: "a", down: true })` 按键，`down: false` 松开。
+
 ## agent 怎么自己验
 
 agent 看不到窗口，所以命令行能不开窗口跑：

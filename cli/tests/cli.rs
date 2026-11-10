@@ -88,6 +88,7 @@ fn web_is_one_file_with_the_game_inside() {
     assert!(html.contains("\"wasm\":\"AGFzbQ"), "wasm 用 base64 塞在里面");
     assert!(html.contains("cover.png"));
     assert!(!html.contains("{{"), "模板的空都填上了");
+    assert!(html.contains("classList.add(\"embed\")") && html.contains("vgKey"), "能嵌进别的网页，外面能按键");
 }
 
 #[test]

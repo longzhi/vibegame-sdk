@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 <title>{{title}}</title>
+<script>
+  // 嵌进别的网页时（地址带 ?embed）：只要画面，铺满。
+  if (/[?&#]embed\b/.test(location.search + location.hash)) document.documentElement.classList.add("embed");
+</script>
 <style>
   :root { --bg: #14121f; --panel: #221f33; --ink: #f2efe6; --ink2: #9d97b3; --accent: #ffd23f; --btn: #3a3554; }
   * { box-sizing: border-box; }
@@ -26,6 +30,10 @@
   .made { color: var(--ink2); font-size: 11px; }
   .made a { color: var(--ink2); }
   @media (pointer: coarse) { .pad { display: flex; } .keys { display: none; } }
+  .embed body { padding: 0; gap: 0; background: #000; }
+  .embed h1, .embed #status, .embed .keys, .embed .made, .embed .pad { display: none; }
+  .embed .shell { padding: 0; border-radius: 0; box-shadow: none; background: #000; }
+  .embed canvas { width: 100vw; height: 100vh; aspect-ratio: auto; object-fit: contain; }
 </style>
 </head>
 <body>
