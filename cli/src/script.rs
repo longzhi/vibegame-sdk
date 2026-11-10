@@ -6,7 +6,7 @@
 //! ```
 
 use anyhow::{bail, Context, Result};
-use qingos_host::full::key;
+use qfull::full::key;
 
 #[derive(Default)]
 pub struct Script {

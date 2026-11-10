@@ -1,6 +1,6 @@
 // VibeGame 的网页版宿主：在浏览器里跑一个游戏的 .wasm（ADR 0034）。
 // 游戏只用 12 个导入函数（qingos-sdk 的 docs/ABI.md「整屏 app 用到的」）。这里一样一样补上：
-// 画面画到 canvas，键盘、手柄、屏上的按钮当键，合成器照 qingos-host 的 Synth 一行一行抄过来，存档放 localStorage。
+// 画面画到 canvas，键盘、手柄、屏上的按钮当键，合成器照 qfull 的 Synth 一行一行抄过来，存档放 localStorage。
 // 页面在 window.VG 里给：{ name, title, wasm（base64）, assets: { 名字: base64 } }。
 (() => {
   "use strict";
@@ -19,7 +19,7 @@
   const b64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
   const toB64 = (u8) => { let s = ""; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); };
 
-  // ---- 合成器：照 qingos-host/src/full.rs 的 Synth 抄，声音才和掌机一样 ----
+  // ---- 合成器：照 qfull/src/full.rs 的 Synth 抄，声音才和掌机一样 ----
   const PEAK = 0.25, WAV_MAX_SECS = 2;
   class Synth {
     constructor(rate) { this.rate = rate; this.voices = [0, 1, 2, 3].map(() => ({ hz: 0, left: 0, amp: 0, phase: 0, lfsr: 1 })); this.wavv = null; }

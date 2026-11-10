@@ -1,9 +1,9 @@
 //! 跑一个游戏：一帧交按键、调一次 `qing_tick`、取画面和音调。窗口和不开窗口都用它。
-//! 装载器和画面、声音的代码是 qingos-host 的，掌机上用的是同一份。
+//! 装载器和画面、声音的代码是 qfull 的，掌机上用的是同一份。
 
 use crate::script::Script;
 use anyhow::{Context, Result};
-use qingos_host::full::{Frame, Full, Tone, H, W};
+use qfull::full::{Frame, Full, Tone, H, W};
 use std::path::Path;
 use std::sync::Arc;
 
@@ -11,7 +11,7 @@ use std::sync::Arc;
 pub const FPS: u32 = 60;
 
 pub struct Player {
-    inner: qingos_host::Player,
+    inner: qfull::Player,
     /// 跑过几帧。
     pub frame_no: u64,
     /// 最新的画面：这一帧没交就还是上一帧的。
@@ -21,7 +21,7 @@ pub struct Player {
 impl Player {
     /// `data` 是游戏存档的目录（`data_write`）；None 时存不了。
     pub fn load(module: &Path, data: Option<std::path::PathBuf>, memory_mb: u64) -> Result<Player> {
-        Ok(Player { inner: qingos_host::Player::load(module, data, memory_mb)?, frame_no: 0, last: Frame::default() })
+        Ok(Player { inner: qfull::Player::load(module, data, memory_mb)?, frame_no: 0, last: Frame::default() })
     }
 
     pub fn full(&self) -> &Arc<Full> {

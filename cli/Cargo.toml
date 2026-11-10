@@ -12,7 +12,7 @@ path = "src/main.rs"
 
 [dependencies]
 # 画面、按键、合成器和掌机用同一份代码。compile：直接跑 cargo 编出来的 .wasm、给掌机编 .cwasm。
-qingos-host = { workspace = true, features = ["compile"] }
+qfull = { workspace = true, features = ["compile"] }
 anyhow.workspace = true
 serde_json.workspace = true
 serde = { version = "1", features = ["derive"] }

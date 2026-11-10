@@ -4,7 +4,7 @@ use crate::player::{Player, FPS};
 use anyhow::{anyhow, Context, Result};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use minifb::{Key, Window, WindowOptions};
-use qingos_host::full::{key, Full, H, W};
+use qfull::full::{key, Full, H, W};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 

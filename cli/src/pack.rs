@@ -21,7 +21,7 @@ pub fn pack(dir: &Path, target: &str) -> Result<(Vec<u8>, Game)> {
     let g = Game::open(dir)?;
     let wasm_path = g.build()?;
     let wasm = std::fs::read(&wasm_path)?;
-    let cwasm = qingos_host::precompile(&wasm, Some(target)).with_context(|| format!("给 {target} 编不了"))?;
+    let cwasm = qfull::precompile(&wasm, Some(target)).with_context(|| format!("给 {target} 编不了"))?;
     let mut tar = tar::Builder::new(flate2::write::GzEncoder::new(Vec::new(), flate2::Compression::best()));
     let add = |tar: &mut tar::Builder<_>, name: &str, bytes: &[u8]| -> Result<()> {
         let mut h = tar::Header::new_gnu();
