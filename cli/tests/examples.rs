@@ -102,6 +102,22 @@ fn thunder_shoots_while_the_music_plays() {
     assert!(count(&rgb, BAND) > 4, "看得见雷的头巾");
 }
 
+const SHOT: [u8; 3] = [0xff, 0xd2, 0x3f];
+
+#[test]
+fn skyfire_fires_volleys_after_the_banner() {
+    // 标题按 START，关头的字放两秒，再按住 A 连发。
+    let script = "5 start\n130-250 a\n";
+    let out = vibegame("skyfire", &["run", "--headless", "--frames", "250"], script);
+    let shots = tone_frames(&out, "声道=1 频率=1760");
+    assert!(shots.len() >= 8, "按住 A 一直打：{out}");
+    assert!(shots[0] >= 130, "关头的字放完才能打");
+    assert!(!tone_frames(&out, "声道=0").is_empty(), "关里的曲子在放");
+    // 截一张：子弹（黄的）在往上飞。
+    let rgb = shot("skyfire", 200, script, &[]);
+    assert!(count(&rgb, SHOT) > 20, "看得见子弹");
+}
+
 #[test]
 fn duckpush_clears_level_one_and_keeps_the_save() {
     let data = tmp("pushdata");

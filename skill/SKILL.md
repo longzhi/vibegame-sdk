@@ -96,10 +96,11 @@ vibegame::main!(|app| {
 
 ## 抄样板
 
-https://github.com/longzhi/vibegame-sdk/tree/main/examples 有四款做完的游戏，要什么抄什么：
+https://github.com/longzhi/vibegame-sdk/tree/main/examples 有五款做完的游戏，要什么抄什么：
 
 - `courier`《疾风邮差》：横版跳跃。地图块、镜头跟着走、重力、踩敌人、大怪。
 - `thunder`《雷霆突击》：横版射击。子弹、八个方向打、一屏很多东西、音乐和爆炸声一起响。
+- `skyfire`《烈空战机》：竖版飞机射击。地图往上卷、出敌脚本、成片的子弹、分几块打的大怪、炸弹。
 - `ironcamp`《铁壳守营》：俯视坦克战。一格一格的地图、能打碎的墙、敌人的路线、二十关。
 - `duckpush`《鸭鸭搬面包》：推箱子。选关菜单、撤回、存档、测试里的求解器。
 

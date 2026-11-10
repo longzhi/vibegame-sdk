@@ -528,7 +528,94 @@ def thunder():
     return c
 
 
-COVERS = {"ironcamp": ironcamp, "courier": courier, "thunder": thunder}
+# ---------------------------------------------------------------- 烈空战机
+
+
+def skyfire():
+    c = Canvas()
+    # 从上往下看的海：远处深，近处亮，抖动过渡。
+    c.gradient(0, 80, ["#0c1030", "#182458", "#1c4c90", "#2860a8"])
+    # 浪花：短短的亮线，越往下越密。
+    for i in range(40):
+        x, y = (i * 37) % W, (i * 53) % 80
+        if y > 20 or i % 3 == 0:
+            c.rect(x, y, 3, 1, "#4888c8")
+    # 左下一块岸：沙一圈，里面是草。
+    for y in range(44, 80):
+        edge = 20 - (y - 44) // 3 + int(2 * math.sin(y / 3))
+        for x in range(0, max(0, 36 - edge)):
+            c.set(x, y, "#48a048" if x < 30 - edge else "#e8c880")
+    for x, y in [(4, 70), (10, 62), (6, 76), (14, 72)]:
+        c.rect(x, y, 2, 2, "#2c7038")
+    # 上面压着一艘大战舰的船头：灰的，两座炮塔。
+    for k in range(18):
+        c.rect(22 + k * 2, 18 + k, 52 - k * 4, 1, "#404860")
+    c.rect(18, 0, 60, 18, "#404860")
+    c.rect(20, 0, 56, 16, "#7888a0")
+    c.rect(22, 2, 52, 1, "#b8c8d8")
+    for tx in (26, 58):
+        c.rect(tx, 5, 12, 10, "#0c0814")
+        c.rect(tx + 1, 6, 10, 8, "#7888a0")
+        c.rect(tx + 5, 14, 2, 4, "#0c0814")
+    c.rect(43, 2, 10, 13, "#0c0814")
+    c.rect(44, 3, 8, 11, "#ff7058")
+    c.rect(46, 5, 4, 7, "#fff4a0")
+    # 敌人打下来的粉色子弹。
+    for x, y in [(30, 30), (66, 32), (40, 40), (58, 44), (20, 38), (76, 40)]:
+        c.rect(x - 1, y, 3, 1, "#ff48a0")
+        c.rect(x, y - 1, 1, 3, "#ff48a0")
+        c.set(x, y, "#ffb8e0")
+    # 右边炸开一架小飞机。
+    for y in range(20, 40):
+        for x in range(70, 96):
+            d = math.hypot(x - 82, y - 30) + BAYER[y % 4][x % 4] / 16 * 3
+            if d < 4:
+                c.set(x, y, "#ffffff")
+            elif d < 7:
+                c.set(x, y, "#fff4a0")
+            elif d < 9:
+                c.set(x, y, "#ff9420")
+            elif d < 10:
+                c.set(x, y, "#d83030")
+    # 主角「烈风」放大两倍，往上打两排子弹。
+    # 字符画和游戏里 art.rs 的 hero 一样，尾焰多一行。
+    hero = [
+        ".......ww.......",
+        "......wbbw......",
+        "......wbbw......",
+        "......wrrw......",
+        ".....wrrrrw.....",
+        "....wrrRRrrw....",
+        "..wwrrrRRrrrww..",
+        ".wrrrrrRRrrrrrw.",
+        "wrrwwrrRRrrwwrrw",
+        "www..wrRRrw..www",
+        "......wrrw......",
+        ".....wrrrrw.....",
+        "....wrr..rrw....",
+        "....www..www....",
+        "......oyyo......",
+        ".......yy.......",
+    ]
+    keys = {"w": "#f4f0e6", "r": "#d83030", "R": "#801828", "b": "#8cd0ff", "o": "#ff9420", "y": "#ffd23f"}
+    spr = scale(art(hero, keys), 2)
+    hx, hy = 32, 46
+    for y in range(len(spr)):
+        for x in range(len(spr[0])):
+            if spr[y][x] is None and any(
+                0 <= y + dy < len(spr) and 0 <= x + dx < len(spr[0]) and spr[y + dy][x + dx] is not None
+                for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))
+            ):
+                c.set(hx + x, hy + y, "#0c0814")
+    c.blit(spr, hx, hy)
+    for y in range(22, 44, 7):
+        for dx in (10, 20):
+            c.rect(hx + dx, y, 2, 4, "#ffd23f")
+            c.set(hx + dx, y, "#fff4a0")
+    return c
+
+
+COVERS = {"ironcamp": ironcamp, "courier": courier, "thunder": thunder, "skyfire": skyfire}
 
 
 def main():

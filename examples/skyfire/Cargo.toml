@@ -1,0 +1,12 @@
+[package]
+name = "skyfire"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+description = "游戏《烈空战机》：竖版飞机射击，四关"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+vibegame = { path = "../../vibegame" }

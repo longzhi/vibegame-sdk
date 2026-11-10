@@ -25,13 +25,14 @@ vibegame push --watch         # 推到掌机上直接开，一改就再推
 | `web/` | 网页版的播放器：`vibegame web` 把它和游戏塞进一个 HTML |
 | `skill/SKILL.md` | 给 agent 的说明。`vibegame skill` 印出来 |
 | `templates/blank/` | `vibegame new` 起的模板：《捡星星》 |
-| `examples/` | 四款做完的游戏，抄着做 |
+| `examples/` | 五款做完的游戏，抄着做 |
 | `tools/` | 生成自带字体（`make-font.py`）、画样板游戏的封面（`game-covers.py`） |
 
-## 四款样板
+## 五款样板
 
 - `courier`《疾风邮差》：横版跳跃，六关。
 - `thunder`《雷霆突击》：横版射击，四关，两个突击队员选一个。
+- `skyfire`《烈空战机》：竖版飞机射击，四关，每关最后一个大怪。
 - `ironcamp`《铁壳守营》：俯视的坦克战，二十关。
 - `duckpush`《鸭鸭搬面包》：推箱子，二十关。
 
