@@ -1,8 +1,8 @@
-//! 和掌机说话：配对、推游戏。走局域网的 HTTP，掌机的控制台那头（只在开发者模式下开）。
+//! 和掌机说话：配对、推游戏。走局域网的 HTTP，到掌机上 QingOS 的控制台（只在开发者模式下开）。
 //!
 //! ```text
-//! GET  /api/vg     头 x-qing-code: <口令>   → 200 {"device": 名字, "games": [名字…]}
-//! POST /api/vg     头 x-qing-code，身子是 .vg 包
+//! GET  /api/apps/push     头 x-qing-code: <口令>   → 200 {"device": 名字, "apps": [名字…]}
+//! POST /api/apps/push     头 x-qing-code，身子是 .vg 包
 //!                  → 200 {"name": 名字, "state": "updated" | "installed" | "declined" | "timeout"}
 //! ```
 //!
@@ -46,7 +46,7 @@ fn agent(secs: u64) -> ureq::Agent {
 
 /// 问一下掌机：回 (状态码, 身子)。
 fn hello(d: &Device) -> Result<(u16, serde_json::Value)> {
-    let mut r = agent(5).get(format!("{}/api/vg", base(&d.host))).header("x-qing-code", &d.code).call().with_context(|| format!("连不上 {}：掌机开着吗？和开发机在一个 Wi‑Fi 里吗？", d.host))?;
+    let mut r = agent(5).get(format!("{}/api/apps/push", base(&d.host))).header("x-qing-code", &d.code).call().with_context(|| format!("连不上 {}：掌机开着吗？和开发机在一个 Wi‑Fi 里吗？", d.host))?;
     let status = r.status().as_u16();
     let body = r.body_mut().read_json().unwrap_or(serde_json::Value::Null);
     Ok((status, body))
@@ -85,7 +85,7 @@ pub fn pair(host: &str, code: Option<&str>) -> Result<()> {
     let f = file().context("没有 HOME，存不了口令")?;
     std::fs::create_dir_all(f.parent().unwrap())?;
     std::fs::write(&f, serde_json::to_vec_pretty(&d)?)?;
-    let games: Vec<&str> = body["games"].as_array().into_iter().flatten().filter_map(|v| v.as_str()).collect();
+    let games: Vec<&str> = body["apps"].as_array().into_iter().flatten().filter_map(|v| v.as_str()).collect();
     println!("配好了：{}（{}）。上面有 {} 个游戏{}", body["device"].as_str().unwrap_or("掌机"), d.host, games.len(), if games.is_empty() { String::new() } else { format!("：{}", games.join("、")) });
     println!("vibegame push 推当前目录的游戏。");
     Ok(())
@@ -97,7 +97,7 @@ fn push_once(dir: &Path, d: &Device) -> Result<()> {
     println!("推 {}（{} KB）到 {}…", g.m.name, bytes.len() / 1024, d.host);
     // 新游戏要人在掌机上按，最多等 90 秒。
     let mut r = agent(90)
-        .post(format!("{}/api/vg", base(&d.host)))
+        .post(format!("{}/api/apps/push", base(&d.host)))
         .header("x-qing-code", &d.code)
         .header("content-type", "application/x-vibegame")
         .send(&bytes[..])
