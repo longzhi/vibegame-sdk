@@ -1,0 +1,6 @@
+缝合像素字体（Fusion Pixel Font）12px 等宽，作者 TakWolf。
+来源：https://github.com/TakWolf/fusion-pixel-font
+烘字用的版本：v2026.09.25，文件 fusion-pixel-font-12px-monospaced-bdf-v2026.09.25.zip 里的 zh_hans.bdf。
+系统页的主题用同一版本的 TTF（fusion-pixel-font-12px-monospaced-ttf-v2026.09.25.zip 里的 zh_hans），image/get-fonts.sh 裁成常用字放进数据盘。
+许可证：SIL Open Font License 1.1，全文在 OFL.txt。它用了别的像素字体的字形，那些字体的许可证在 upstream/。
+字体文件不进仓库。scripts/bake-font.py 把 app 用到的字烘成 app 的 src/font.rs，那些数组是这款字体的一部分，跟着这里的许可证走。

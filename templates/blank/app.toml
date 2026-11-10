@@ -1,0 +1,9 @@
+[app]
+name      = "blank"
+title     = "捡星星"
+version   = "0.1.0"
+command   = "bin/blank.cwasm"
+screen    = "full"
+cover     = "assets/cover.png"   # 掌机的家上的封面，96×80
+rate_hz   = 60
+memory_mb = 16

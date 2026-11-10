@@ -1,0 +1,10 @@
+[package]
+name = "vibegame"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+description = "VibeGame 写游戏的库：画面、按键、音调、精灵、地图块、点阵字、音乐、存档"
+
+[dependencies]
+qapp.workspace = true

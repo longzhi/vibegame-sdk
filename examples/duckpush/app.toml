@@ -1,0 +1,11 @@
+# 样板游戏《鸭鸭搬面包》：推箱子。练存档、选关的菜单、撤回一步。
+[app]
+name        = "duckpush"
+title       = "鸭鸭搬面包"
+version     = "0.1.0"
+description = "推箱子：把面包推到盘子上，二十关，过一关存一关，能撤回"
+command     = "bin/duckpush.cwasm"
+screen      = "full"
+cover       = "assets/cover.png"   # 家上的封面：游戏里截的一块，96×80
+rate_hz     = 60
+memory_mb   = 16

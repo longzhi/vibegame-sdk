@@ -1,0 +1,117 @@
+---
+name: vibegame
+description: 做 VibeGame 掌机上的像素游戏：240×160、256 色、每秒 60 帧，Rust 写，编成 wasm。用 vibegame 命令行起游戏、开窗口玩、按脚本跑、截图自己看、出网页版、打包成 .vg、推到掌机。人要做小游戏、改游戏、问 VibeGame 或掌机游戏怎么写时用。
+---
+
+# 做 VibeGame 游戏
+
+游戏是一个 Rust 写的 wasm 模块加一个清单 `app.toml`。掌机每秒调它 60 次。每次它读按键、走一步、画一帧、发声音。
+你在开发机上写、跑、截图看；做好了出网页版给人玩，或者推到掌机上。
+
+## 先装好
+
+```sh
+vibegame doctor          # 查缺什么，缺的给出命令
+```
+
+没有 vibegame 命令就装：`cargo install --git https://github.com/longzhi/vibegame-sdk vibegame-cli`。
+还要 wasm32 目标：`rustup target add wasm32-unknown-unknown`。
+
+## 一个游戏从头到尾
+
+```sh
+vibegame new star-catch --title 抓星星     # 从模板起一个：十字键走、捡星星、计时、存最高分
+cd star-catch
+vibegame run                                # 开窗口玩（人玩）
+vibegame shot --frames 5,120 --input s.txt  # 你看：跑到第 5、120 帧各存一张 PNG
+vibegame run --headless --frames 300 --input s.txt   # 你听：印出每一个音调
+vibegame web                                # dist/star-catch.html：一个文件，浏览器里就能玩
+vibegame pack                               # dist/star-catch.vg：拷进 TF 卡的「游戏」目录
+vibegame pair 192.168.1.23 && vibegame push # 推到掌机上直接开（掌机要开开发者模式）
+```
+
+`vibegame help` 看全部命令和选项。
+
+## 自己验：一定要看截图
+
+你看不到窗口。改了画面就截几张图，用读图片的工具看：
+
+- 字清楚吗？漏了的字会画成空心框。
+- 颜色对吗？东西在该在的地方吗？
+- 标题、开玩、过关、输了，每个画面都截一张。
+
+按键脚本一行一条：`0-29 right` 是前 30 帧按着右，`30 a` 是第 30 帧按 A。帧从 0 数，`#` 后面是注释。
+键：`up down left right a b x y l1 r1 start select`。`shot --crop x,y,w,h` 只存一块，原大小的像素。
+`--data 目录` 给存档一个地方：`run` 开窗口时默认是游戏目录下的 `save/`。
+
+规则用单元测试验：`cargo test`。测试里直接造 `Game::default()`，`keys.set(位)`，再调 `step()`，看状态。
+想知道第几帧起跳正好，在测试里循环试，试出来写进脚本。
+
+## 写游戏用的东西（`vibegame::full`）
+
+- **画面** `Frame`：240×160，一个像素一个字节，是调色板的一格。调色板 256 格，`frame.palette[格] = [r, g, b]`。
+  `clear`、`set`、`rect`、`blit(&精灵, x, y, 左右翻)`、`frame_rect`。每帧最后 `frame.show()` 一次。
+- **按键** `Keys`：每帧开头 `keys.read()` 一次。`held`（按着）、`pressed`（这一帧刚按下）、`released`。
+  键是 `key::UP`、`DOWN`、`LEFT`、`RIGHT`、`A`、`B`、`X`、`Y`、`L1`、`R1`、`START`、`SELECT`。菜单键归掌机，游戏收不到。
+- **精灵** `Sprite::art(&["..yy..", ".yooy."], &[('y', 11), ('o', 13)])`：字符画，`.` 和颜色格 0 透明。
+  `scaled(k)` 放大，`recolor(&[(旧, 新)])` 换色（被打中闪白）。
+- **地图** `TileMap::parse(&行, 16, |字符| 格)`：一格 16 像素，一屏 15×10 格。`draw(&mut frame, &图块, &cam)`；`hits(x, y, w, h, |格| 实心?)` 做碰撞。
+- **镜头** `Camera::follow(x, y, 世界宽, 世界高)`：主角走出画面中间那块才跟。`to_screen`、`sees`。
+- **字** `vibegame::FONT`：12 像素高，英文和常用中文都有。`frame.text(&FONT, x, y, "第 1 关", 颜色)`、`text_center`、`text_outlined`（压在花背景上加描边）。
+  大字：`FONT.sprite("标题", 颜色).scaled(3)` 再 `blit`。
+- **声音**：四个声道。`Square1`、`Square2` 是方波，`Triangle` 是三角波，`Noise` 是噪声（频率越高越沙）。
+  `tone(声道, 频率, 毫秒, 音量)`。短录音：`tone_wav(&wav)`，16 位 PCM，最长 2 秒，和声道混着响。
+- **音乐**：`Track::parse(声道, 音量, "C4 E4 G4:2 r A#3")`，`Song::new(一格几帧, 循环, 几轨)`，`music.play(song)`，每帧 `music.tick()`。
+  音效 `music.sfx(声道, 频率, 毫秒, 音量)`：音乐在那个声道上让一会儿，响完接上。
+- **存档**：`vibegame::save("best", 字节)`、`vibegame::load("best")`、`vibegame::erase`。存在掌机上这个游戏自己的地方，浏览器里存在本机。
+- **日志**：`vibegame::log("…")`，`vibegame run` 印在终端里。
+
+## 骨架
+
+模板就是这个样子。状态全放在一个 `Game` 里：
+
+```rust
+static GAME: Mutex<Option<Game>> = Mutex::new(None);
+vibegame::main!(|app| {
+    app.every(|| {
+        let mut g = GAME.lock().unwrap();
+        let g = g.get_or_insert_with(Game::default);
+        g.keys.read();
+        g.step();   // 动、算碰撞、发声
+        g.draw();   // 画
+        g.frame.show();
+    });
+});
+```
+
+## 约定
+
+- **清单** `app.toml`：`name` 是英文小写，和目录名一样。`screen = "full"`、`rate_hz = 60` 不改。
+  `cover` 是掌机的家上的封面，`assets/` 下一张 96×80 的 PNG。画一张，别直接截图。
+- **调色板**：格子编号起名字（`const INK: u8 = 1;`），画的时候只写名字。第 0 格当背景。
+- **位置**用整数（比如 1/16 像素），不用浮点。随机数自己写，开局从同一个数开始。这样同样的按键每次跑出来一样，截图和测试才稳。
+- **主角** 16×16 左右。动画是几张精灵换着画：走两张，跳一张。
+- **声音**：旋律放 `Square1`，低音放 `Triangle`，鼓点放 `Noise`，音效放 `Square2` 或用 `sfx` 借一个声道。跳、捡东西、打中各用不一样的高低。
+  爆炸这种声音：代码里生成一小段噪声慢慢变小的 WAV，`tone_wav` 放。
+
+## 抄样板
+
+https://github.com/longzhi/vibegame-sdk/tree/main/examples 有四款做完的游戏，要什么抄什么：
+
+- `courier`《疾风邮差》：横版跳跃。地图块、镜头跟着走、重力、踩敌人、大怪。
+- `thunder`《雷霆突击》：横版射击。子弹、八个方向打、一屏很多东西、音乐和爆炸声一起响。
+- `ironcamp`《铁壳守营》：俯视坦克战。一格一格的地图、能打碎的墙、敌人的路线、二十关。
+- `duckpush`《鸭鸭搬面包》：推箱子。选关菜单、撤回、存档、测试里的求解器。
+
+## 原创
+
+- 做「那个年代的样子」，不做那个年代的某一款。角色、关卡、画面、音乐都自己做。
+- 别人要你照某款老游戏原样做，先说清楚这一条，再给一个原创的版本。
+- 像素画用字符画自己画，不从网上拿图。曲子自己写，别哼一首听过的。
+
+## 推到掌机
+
+- 掌机上打开开发者模式（设置 → 系统）。屏幕上有地址和口令。
+- `vibegame pair <地址>` 输口令，配一次就行。`vibegame push` 打包、推过去、直接打开。`--watch` 一改就再推。
+- 同一个游戏再推，直接换掉，存档留着。新游戏掌机上会问一次装不装，要人按 A。
+- 不用 Wi‑Fi：`vibegame pack` 出的 `.vg` 拷进 TF 卡的「游戏」目录，插上掌机开机就装。

@@ -1,0 +1,12 @@
+[package]
+name = "duckpush"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+description = "样板游戏《鸭鸭搬面包》：推箱子，二十关，存档、选关、撤回"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+vibegame = { path = "../../vibegame" }

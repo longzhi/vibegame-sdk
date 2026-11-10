@@ -1,0 +1,12 @@
+[package]
+name = "ironcamp"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+description = "游戏《铁壳守营》：俯视的坦克战，守营地，二十关"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+vibegame = { path = "../../vibegame" }

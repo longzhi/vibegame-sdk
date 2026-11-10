@@ -1,0 +1,5 @@
+/target
+**/bin/
+dist/
+# 本机开发时把 qingos-sdk 指到本地目录：.cargo/config.toml 里的 [patch]，不进仓库
+.cargo/config.toml

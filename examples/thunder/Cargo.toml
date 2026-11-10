@@ -1,0 +1,12 @@
+[package]
+name = "thunder"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+description = "游戏《雷霆突击》：横版射击，两个突击队员，四关"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+vibegame = { path = "../../vibegame" }

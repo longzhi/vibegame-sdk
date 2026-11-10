@@ -1,0 +1,12 @@
+# 模板游戏：`vibegame new` 照它起一个新游戏。这里是 vibegame-sdk 的一员，编得过才发得出去。
+[package]
+name = "blank"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+vibegame = { path = "../../vibegame" }

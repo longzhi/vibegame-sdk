@@ -1,0 +1,11 @@
+# 游戏《疾风邮差》：横版跳跃。
+[app]
+name        = "courier"
+title       = "疾风邮差"
+version     = "0.2.0"
+description = "横版跳跃：小邮差送急件，跑、跳、顶箱子、踩发条兵，六关，最后打邮件大盗"
+command     = "bin/courier.cwasm"
+screen      = "full"
+cover       = "assets/cover.png"   # 家上的封面：scripts/game-covers.py 画的，96×80
+rate_hz     = 60
+memory_mb   = 16

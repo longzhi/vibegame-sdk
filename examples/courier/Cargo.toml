@@ -1,0 +1,12 @@
+[package]
+name = "courier"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+description = "游戏《疾风邮差》：横版跳跃，小邮差送急件，六关"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+vibegame = { path = "../../vibegame" }
