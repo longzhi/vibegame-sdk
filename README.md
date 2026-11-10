@@ -74,6 +74,12 @@ The screen, sound and button code is the same code that runs on the handheld. Wh
 - **Wi-Fi**: turn on developer mode on the handheld. Run `vibegame pair <address>` and type the code from the screen. You pair once.
   After that, `vibegame push` packs the game, sends it and opens it. Push the same game again and the handheld swaps it in and keeps the saves. For a new game, the handheld asks once, and a person must press A.
 - **TF card**: copy the `.vg` file from `vibegame pack` into the `games` folder on the card (a folder named `游戏` also works). Put the card in and turn the handheld on to install it.
+- **Wi-Fi on the handheld**: type the password with the D-pad in Settings, or put a `wifi.toml` file at the top of the TF card and turn the handheld on:
+
+  ```toml
+  ssid = "your network"
+  password = "your password"
+  ```
 
 A `.vg` file is a tar.gz with `app.toml`, `bin/<name>.wasm`, `bin/<name>.cwasm` (built for the handheld) and `assets/`.
 The handheld has no compiler, so `pack` builds on your computer. When a system update changes the handheld runtime, pack old games again.
