@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
@@ -28,7 +28,8 @@
   .mid button { padding: 6px 10px; font-size: 11px; }
   button:active { background: var(--accent); color: #000; }
   .made { color: var(--ink2); font-size: 11px; }
-  .made a { color: var(--ink2); }
+  .made a, .made button { color: var(--ink2); }
+  .made button { background: none; padding: 0; font: inherit; font-weight: normal; text-decoration: underline; cursor: pointer; }
   @media (pointer: coarse) { .pad { display: flex; } .keys { display: none; } }
   .embed body { padding: 0; gap: 0; background: #000; }
   .embed h1, .embed #status, .embed .keys, .embed .made, .embed .pad { display: none; }
@@ -39,18 +40,18 @@
 <body>
 <h1>{{title}}</h1>
 <div class="shell"><canvas id="screen" width="240" height="160"></canvas></div>
-<div id="status">按任意键或点一下画面开声音</div>
+<div id="status" data-t="sound"></div>
 <div class="pad">
   <div class="dpad">
-    <span></span><button data-key="up" aria-label="上">▲</button><span></span>
-    <button data-key="left" aria-label="左">◀</button><span></span><button data-key="right" aria-label="右">▶</button>
-    <span></span><button data-key="down" aria-label="下">▼</button><span></span>
+    <span></span><button data-key="up" aria-label="Up">▲</button><span></span>
+    <button data-key="left" aria-label="Left">◀</button><span></span><button data-key="right" aria-label="Right">▶</button>
+    <span></span><button data-key="down" aria-label="Down">▼</button><span></span>
   </div>
   <div class="mid"><button data-key="select">SELECT</button><button data-key="start">START</button></div>
   <div class="ab"><button data-key="b">B</button><button data-key="a">A</button></div>
 </div>
-<div class="keys">方向键走 · X = A · Z = B · S = X · A = Y · Q = L1 · W = R1 · 回车 = Start · 右 Shift = Select · 也认手柄</div>
-<div class="made">用 <a href="https://github.com/longzhi/vibegame-sdk">VibeGame</a> 做的</div>
+<div class="keys" data-t="keys"></div>
+<div class="made"><span data-t="made"></span> · <button id="lang" type="button"></button></div>
 <script>window.VG = {{data}};</script>
 <script>{{player}}</script>
 </body>

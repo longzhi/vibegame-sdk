@@ -13,7 +13,7 @@ mod tests;
 use art::*;
 use stages::{Kind, Wave, STAGES};
 use std::sync::Mutex;
-use vibegame::full::{key, tone_wav, Camera, Channel, Frame, Keys, Music, Sprite, TileMap, H, W};
+use vibegame::full::{key, lang, tone_wav, Camera, Channel, Frame, Keys, Music, Sprite, TileMap, H, W};
 use vibegame::FONT;
 
 /// 1 像素是 16 个单位。
@@ -1163,7 +1163,7 @@ impl Game {
     fn draw_hud(&mut self) {
         let f = &mut self.frame;
         f.text_outlined(&FONT, 3, 1, &format!("{:07}", self.score), WHITE, INK);
-        f.text_outlined(&FONT, 92, 1, &format!("最高 {:07}", self.hi), YELLOW, INK);
+        f.text_outlined(&FONT, 92, 1, &lang().pick(format!("HI {:07}", self.hi), format!("最高 {:07}", self.hi)), YELLOW, INK);
         for i in 0..self.lives.clamp(0, 6) {
             f.blit(&self.sprites.life, 3 + i * 7, 15, false);
         }
@@ -1203,21 +1203,30 @@ impl Game {
         };
         match self.mode {
             Mode::Intro => {
-                big(f, 52, &format!("第{}关", ["一", "二", "三", "四"][stage]), YELLOW);
-                f.text_outlined(&FONT, (W as i32 - FONT.width(STAGES[stage].name)) / 2, 82, STAGES[stage].name, WHITE, INK);
+                big(f, 52, &lang().pick(format!("STAGE {}", stage + 1), format!("第{}关", ["一", "二", "三", "四"][stage])), YELLOW);
+                let name = STAGES[stage].label();
+                f.text_outlined(&FONT, (W as i32 - FONT.width(name)) / 2, 82, name, WHITE, INK);
             }
-            Mode::Play if self.paused => big(f, 64, "暂停", WHITE),
+            Mode::Play if self.paused => big(f, 64, lang().pick("PAUSE", "暂停"), WHITE),
             Mode::Clear if self.t > 30 => {
-                big(f, 48, "过关", YELLOW);
-                let line = format!("炸弹奖励 {}", self.bombs * 1000 + 5000);
+                big(f, 48, lang().pick("STAGE CLEAR", "过关"), YELLOW);
+                let bonus = self.bombs * 1000 + 5000;
+                let line = lang().pick(format!("BOMB BONUS {bonus}"), format!("炸弹奖励 {bonus}"));
                 f.text_outlined(&FONT, (W as i32 - FONT.width(&line)) / 2, 80, &line, WHITE, INK);
             }
             Mode::Over => {
-                big(f, 44, "被击落了", RED_HI);
+                big(f, 44, lang().pick("SHOT DOWN", "被击落了"), RED_HI);
                 let (a, b) = if self.continues > 0 {
-                    (format!("接着打吗？还能接 {} 次", self.continues), "A 接着打  B 不打了".to_string())
+                    let n = self.continues;
+                    (
+                        lang().pick(format!("CONTINUE? {n} LEFT"), format!("接着打吗？还能接 {n} 次")),
+                        lang().pick("A YES   B NO", "A 接着打  B 不打了").to_string(),
+                    )
                 } else {
-                    ("没有接着打的机会了".to_string(), "按 START 回标题".to_string())
+                    (
+                        lang().pick("NO CONTINUES LEFT", "没有接着打的机会了").to_string(),
+                        lang().pick("PRESS START", "按 START 回标题").to_string(),
+                    )
                 };
                 if self.t > 40 {
                     f.text_outlined(&FONT, (W as i32 - FONT.width(&a)) / 2, 80, &a, WHITE, INK);
@@ -1237,8 +1246,9 @@ impl Game {
             let y = ((i.wrapping_mul(37) + self.t / 2) % H as u32) as i32;
             f.set(x, y, if i % 4 == 0 { WHITE } else { BLUE_HI });
         }
-        let title = FONT.sprite("烈空战机", RED_HI).scaled(3);
-        let edge = FONT.sprite("烈空战机", INK).scaled(3);
+        let name = lang().pick("SKYFIRE", "烈空战机");
+        let title = FONT.sprite(name, RED_HI).scaled(3);
+        let edge = FONT.sprite(name, INK).scaled(3);
         let x = (W as i32 - title.w) / 2;
         for (ox, oy) in [(-2, 0), (2, 0), (0, -2), (0, 2), (2, 2)] {
             f.blit(&edge, x + ox, 18 + oy, false);
@@ -1247,13 +1257,15 @@ impl Game {
         let bob = ((self.t as f32 / 20.0).sin() * 3.0) as i32;
         f.blit(&self.sprites.hero[((self.t / 3) % 2) as usize].scaled(2), W as i32 / 2 - 16, 64 + bob, false);
         if self.unlocked > 1 {
-            let s = format!("◀ 第{}关 {} ▶", ["一", "二", "三", "四"][self.pick], STAGES[self.pick].name);
+            let (n, name) = (self.pick, STAGES[self.pick].label());
+            let s = lang().pick(format!("← STAGE {} {name} →", n + 1), format!("← 第{}关 {name} →", ["一", "二", "三", "四"][n]));
             f.text_outlined(&FONT, (W as i32 - FONT.width(&s)) / 2, 104, &s, WHITE, INK);
         }
         if (self.t / 30).is_multiple_of(2) {
-            f.text_outlined(&FONT, (W as i32 - FONT.width("按 START 出击")) / 2, 122, "按 START 出击", YELLOW, INK);
+            let s = lang().pick("PRESS START", "按 START 出击");
+            f.text_outlined(&FONT, (W as i32 - FONT.width(s)) / 2, 122, s, YELLOW, INK);
         }
-        let hi = format!("最高 {:07}", self.hi);
+        let hi = lang().pick(format!("HI {:07}", self.hi), format!("最高 {:07}", self.hi));
         f.text_outlined(&FONT, (W as i32 - FONT.width(&hi)) / 2, 142, &hi, GRAY, INK);
     }
 
@@ -1265,16 +1277,20 @@ impl Game {
             let y = ((i.wrapping_mul(41) + self.t / 3) % H as u32) as i32;
             f.set(x, y, if i % 3 == 0 { YELLOW_HI } else { GRAY });
         }
-        let lines = ["天穹要塞打下来了", "天又亮了", "", "烈风回到海岸线上的家"];
+        let lines = lang().pick(
+            ["The Sky Fortress has fallen", "Dawn breaks again", "", "Blaze flies home to the coast"],
+            ["天穹要塞打下来了", "天又亮了", "", "烈风回到海岸线上的家"],
+        );
         for (i, l) in lines.iter().enumerate() {
             if self.t > 30 * i as u32 {
                 f.text_outlined(&FONT, (W as i32 - FONT.width(l)) / 2, 30 + i as i32 * 16, l, WHITE, INK);
             }
         }
-        let s = format!("得分 {:07}", self.score);
+        let s = lang().pick(format!("SCORE {:07}", self.score), format!("得分 {:07}", self.score));
         f.text_outlined(&FONT, (W as i32 - FONT.width(&s)) / 2, 104, &s, YELLOW, INK);
         if self.t > 120 {
-            f.text_outlined(&FONT, (W as i32 - FONT.width("谢谢你玩")) / 2, 128, "谢谢你玩", RED_HI, INK);
+            let s = lang().pick("THANKS FOR PLAYING", "谢谢你玩");
+            f.text_outlined(&FONT, (W as i32 - FONT.width(s)) / 2, 128, s, RED_HI, INK);
         }
     }
 }

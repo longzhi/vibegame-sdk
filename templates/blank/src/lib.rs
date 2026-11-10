@@ -2,7 +2,7 @@
 //! 从这里改起：画面在 `draw`，规则在 `step`，颜色在 `PALETTE`。
 
 use std::sync::Mutex;
-use vibegame::full::{key, Channel, Frame, Keys, Music, Song, Sprite, Track, H, W};
+use vibegame::full::{key, lang, Channel, Frame, Keys, Music, Song, Sprite, Track, H, W};
 use vibegame::FONT;
 
 // 调色板：格子编号起名字，画的时候只写名字。第 0 格是背景，精灵里的 0 是透明。
@@ -134,21 +134,25 @@ impl Game {
         f.clear(SKY);
         match self.mode {
             Mode::Title => {
-                f.blit(&FONT.sprite("捡星星", GOLD).scaled(3), 120 - FONT.width("捡星星") * 3 / 2, 40, false);
+                // 出字时问系统语言：人在暂停时换了，马上跟着变。
+                let name = lang().pick("STAR CATCH", "捡星星");
+                f.blit(&FONT.sprite(name, GOLD).scaled(3), 120 - FONT.width(name) * 3 / 2, 40, false);
                 f.blit(&self.hero, 112, 92, false);
-                f.text_center(&FONT, 128, "按 START 开始", WHITE);
+                f.text_center(&FONT, 128, lang().pick("PRESS START", "按 START 开始"), WHITE);
             }
             Mode::Play => {
                 f.blit(&self.star_art, self.star.0, self.star.1, false);
                 f.blit(&self.hero, self.x, self.y, false);
                 f.rect(0, 0, W as i32, 13, INK);
-                f.text(&FONT, 4, 0, &format!("星星 {}", self.score), GOLD);
-                f.text(&FONT, 190, 0, &format!("{} 秒", self.left.div_ceil(60)), WHITE);
+                let (score, sec) = (self.score, self.left.div_ceil(60));
+                f.text(&FONT, 4, 0, &lang().pick(format!("STARS {score}"), format!("星星 {score}")), GOLD);
+                f.text(&FONT, 190, 0, &lang().pick(format!("TIME {sec}"), format!("{sec} 秒")), WHITE);
             }
             Mode::Over => {
-                f.text_center(&FONT, 56, &format!("捡到 {} 颗", self.score), GOLD);
-                f.text_center(&FONT, 76, &format!("最多 {} 颗", self.best), WHITE);
-                f.text_center(&FONT, 112, "按 START 再来", WHITE);
+                let (score, best) = (self.score, self.best);
+                f.text_center(&FONT, 56, &lang().pick(format!("YOU GOT {score}"), format!("捡到 {score} 颗")), GOLD);
+                f.text_center(&FONT, 76, &lang().pick(format!("BEST {best}"), format!("最多 {best} 颗")), WHITE);
+                f.text_center(&FONT, 112, lang().pick("PRESS START TO PLAY AGAIN", "按 START 再来"), WHITE);
             }
         }
     }
@@ -181,5 +185,18 @@ mod tests {
         g.keys.set(0);
         g.step();
         assert_eq!(g.score, 1);
+    }
+
+    #[test]
+    fn title_follows_the_system_language() {
+        use vibegame::full::{native::set_lang, Lang};
+        let mut g = Game::default();
+        g.draw();
+        let en = g.frame.pixels.clone();
+        set_lang(Lang::Zh);
+        g.draw();
+        let zh = g.frame.pixels.clone();
+        set_lang(Lang::En);
+        assert_ne!(en, zh);
     }
 }

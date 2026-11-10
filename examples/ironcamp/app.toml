@@ -1,7 +1,8 @@
 # 游戏《铁壳守营》：俯视的坦克战。
 [app]
 name        = "ironcamp"
-title       = "铁壳守营"
+title       = "Iron Camp"
+title_zh    = "铁壳守营"
 version     = "0.1.0"
 description = "开小坦克守营地：砖墙打得碎，钢墙打不动，一关二十辆敌车，二十关"
 command     = "bin/ironcamp.cwasm"

@@ -18,10 +18,10 @@ const USAGE: &str = "vibegame：做掌机游戏（240×160、256 色、每秒 60
 
   vibegame doctor                       查开发机缺什么（Rust、wasm32 目标、掌机连没连上）
   vibegame new <目录> [--title 名字]     从模板起一个新游戏
-  vibegame run [游戏]                    开窗口玩，有声音。存档放在 <游戏>/save/
-  vibegame run [游戏] --headless --frames N [--input 脚本] [--data 目录]
+  vibegame run [游戏] [--lang zh]        开窗口玩，有声音。存档放在 <游戏>/save/
+  vibegame run [游戏] --headless --frames N [--input 脚本] [--data 目录] [--lang zh]
                                         不开窗口，按脚本按键，印出每一个音调
-  vibegame shot [游戏] --frames N[,N…] [--input 脚本] [--out a.png] [--scale K] [--crop x,y,w,h]
+  vibegame shot [游戏] --frames N[,N…] [--input 脚本] [--out a.png] [--scale K] [--crop x,y,w,h] [--lang zh]
                                         跑到第 N 帧，存成 PNG（默认放大 3 倍）。几个帧号就存几张
   vibegame web [游戏] [--out a.html]     出网页版：一个 HTML 文件，浏览器里就能玩，能发给别人
   vibegame pack [游戏] [--out 目录]      打包成 <名字>.vg：拷进 TF 卡的「游戏」目录，或者 push
@@ -29,6 +29,7 @@ const USAGE: &str = "vibegame：做掌机游戏（240×160、256 色、每秒 60
   vibegame push [游戏] [--watch]         打包、推到配好的掌机上、打开。--watch：一改就再推
   vibegame skill [install [--to 目录]]   印出给 agent 的说明；install 装进 Claude Code 和 Codex
 
+--lang 是游戏看到的系统语言：en（默认）或 zh。掌机默认英文，人在设置里换。
 [游戏] 是游戏的目录（有 app.toml），不写是当前目录。run、shot 也能直接给一个 .wasm 文件。
 按键脚本一行一条：「帧 键…」或「起-止 键…」，帧从 0 数，# 后面是注释。
 键：up down left right a b x y l1 r1 start select。
@@ -108,7 +109,7 @@ fn run(mut args: Vec<String>) -> Result<()> {
             new::create(Path::new(dir), a.get("title"), a.path("sdk").as_deref())
         }
         "run" if a.has("headless") => {
-            a.only(&["headless", "frames", "input", "data"])?;
+            a.only(&["headless", "frames", "input", "data", "lang"])?;
             let frames: u64 = a.get("frames").context("--headless 要 --frames N")?.parse().context("--frames 要整数")?;
             let mut p = load(&a, a.path("data"))?;
             p.run(frames, &script(&a)?, |n, t| println!("帧 {n} 音调 声道={} 频率={} 毫秒={} 音量={}", t.channel, t.hz, t.ms, t.volume))?;
@@ -116,7 +117,7 @@ fn run(mut args: Vec<String>) -> Result<()> {
             Ok(())
         }
         "run" => {
-            a.only(&["data"])?;
+            a.only(&["data", "lang"])?;
             let g = a.game(0);
             let data = a.path("data").or_else(|| g.is_dir().then(|| g.join("save")));
             let name = game::module_of(&g)?.1;
@@ -124,7 +125,7 @@ fn run(mut args: Vec<String>) -> Result<()> {
             window::play(&name, &mut p)
         }
         "shot" => {
-            a.only(&["frames", "input", "data", "out", "scale", "crop"])?;
+            a.only(&["frames", "input", "data", "out", "scale", "crop", "lang"])?;
             shot(&a)
         }
         "web" => {
@@ -176,6 +177,10 @@ fn script(a: &Args) -> Result<script::Script> {
 
 /// 编好游戏、装进播放器。`data` 是存档的目录，None 时存不了。
 fn load(a: &Args, data: Option<PathBuf>) -> Result<Player> {
+    match a.get("lang").unwrap_or("en") {
+        l @ ("en" | "zh") => qfull::full::set_lang(l),
+        l => bail!("--lang 只认 en 和 zh，不认 {l}"),
+    }
     let (module, _, memory_mb) = game::module_of(&a.game(0))?;
     if let Some(d) = &data {
         std::fs::create_dir_all(d).with_context(|| format!("建不了 {}", d.display()))?;

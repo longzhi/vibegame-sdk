@@ -13,8 +13,15 @@ pub struct Manifest {
 #[derive(Debug, Clone, Deserialize)]
 pub struct AppSection {
     pub name: String,
+    /// 名字。系统是哪种语言、又没有那种语言的名字时用它。
     #[serde(default)]
     pub title: String,
+    /// 中文的名字（可以不写）。
+    #[serde(default)]
+    pub title_zh: String,
+    /// 英文的名字（可以不写）。
+    #[serde(default)]
+    pub title_en: String,
     pub command: String,
     #[serde(default)]
     pub screen: String,
@@ -24,6 +31,14 @@ pub struct AppSection {
     pub memory_mb: u64,
     #[serde(default)]
     pub cover: String,
+}
+
+impl AppSection {
+    /// 这种语言（`en`、`zh`）下的名字。
+    pub fn title_in(&self, lang: &str) -> &str {
+        let t = if lang == "zh" { &self.title_zh } else { &self.title_en };
+        [t, &self.title, &self.name].into_iter().find(|s| !s.is_empty()).unwrap()
+    }
 }
 
 fn sixteen() -> u64 {

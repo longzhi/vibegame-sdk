@@ -16,7 +16,7 @@ mod tune;
 use art::*;
 use vibegame::FONT;
 use levels::LEVELS;
-use vibegame::full::{key, tone_wav, Channel, Frame, Keys, Music, Sprite, H, W};
+use vibegame::full::{key, lang, tone_wav, Channel, Frame, Keys, Music, Sprite, H, W};
 use std::sync::Mutex;
 
 /// 一个像素是 256 份。
@@ -260,6 +260,7 @@ impl Hero {
 struct Popup {
     x: i32,
     y: i32,
+    /// 空的是「多一条命」：出字时才按系统语言选。
     text: String,
     t: u32,
 }
@@ -1115,7 +1116,7 @@ impl Game {
 
     fn one_up(&mut self, x: i32, y: i32) {
         self.lives += 1;
-        self.popups.push(Popup { x, y, text: "多一条命".into(), t: 0 });
+        self.popups.push(Popup { x, y, text: String::new(), t: 0 });
         self.arpeggio(Channel::Square2, &[659, 784, 1319, 1047, 1175, 1568], 4, 40);
     }
 
@@ -1726,21 +1727,23 @@ impl Game {
                 self.draw_hud();
                 if self.paused && (self.tick / 20).is_multiple_of(2) {
                     let f = &mut self.frame;
-                    let w = FONT.width("暂停");
+                    let s = lang().pick("PAUSE", "暂停");
+                    let w = FONT.width(s);
                     f.rect(120 - w / 2 - 4, 70, w + 8, 16, INK);
-                    f.text(&FONT, 120 - w / 2, 72, "暂停", GOLD_HI);
+                    f.text(&FONT, 120 - w / 2, 72, s, GOLD_HI);
                 }
                 if self.mode == Mode::Clear && self.time == 0 {
-                    self.frame.text_outlined(&FONT, 120 - FONT.width("送达！") / 2, 60, "送达！", GOLD_HI, INK);
+                    let s = lang().pick("DELIVERED!", "送达！");
+                    self.frame.text_outlined(&FONT, 120 - FONT.width(s) / 2, 60, s, GOLD_HI, INK);
                 }
             }
             Mode::Over => {
                 let f = &mut self.frame;
                 f.clear(INK);
-                let big = FONT.sprite("送不到了", RED_HI).scaled(2);
+                let big = FONT.sprite(lang().pick("GAME OVER", "送不到了"), RED_HI).scaled(2);
                 f.blit(&big, (W as i32 - big.w) / 2, 54, false);
-                f.text_center(&FONT, 100, &format!("得分 {}", self.score), WHITE);
-                f.text_center(&FONT, 116, &format!("最高 {}", self.hi), GOLD_HI);
+                f.text_center(&FONT, 100, &lang().pick(format!("SCORE {}", self.score), format!("得分 {}", self.score)), WHITE);
+                f.text_center(&FONT, 116, &lang().pick(format!("HI {}", self.hi), format!("最高 {}", self.hi)), GOLD_HI);
             }
             Mode::Ending => self.draw_ending(),
         }
@@ -1978,7 +1981,8 @@ impl Game {
         }
         let f = &mut self.frame;
         for p in &self.popups {
-            f.text_outlined(&FONT, p.x - cam, p.y - 10 - (p.t / 3) as i32, &p.text, WHITE, INK);
+            let s = if p.text.is_empty() { lang().pick("1UP", "多一条命") } else { &p.text };
+            f.text_outlined(&FONT, p.x - cam, p.y - 10 - (p.t / 3) as i32, s, WHITE, INK);
         }
     }
 
@@ -2069,7 +2073,7 @@ impl Game {
             f.rect(wx + 2, dy - 34, 4, 4, BLUE_HI);
         }
         // 招牌。
-        let sign = "邮局";
+        let sign = lang().pick("POST", "邮局");
         let w = FONT.width(sign);
         f.rect(dx + 8 - w / 2 - 3, dy - 46, w + 6, 13, GREEN_LO);
         f.text(&FONT, dx + 8 - w / 2, dy - 46, sign, GOLD_HI);
@@ -2152,23 +2156,23 @@ impl Game {
         f.text_outlined(&FONT, 4, 1, &format!("{:06}", self.score), WHITE, INK);
         f.blit(&a.stamp_icon, 50, 1, false);
         f.text_outlined(&FONT, 63, 1, &format!("×{:02}", self.stamps), WHITE, INK);
-        let name = LEVELS[self.level].name;
+        let name = LEVELS[self.level].label();
         let short = name.split(' ').next().unwrap_or(name);
         f.text_outlined(&FONT, 112, 1, short, WHITE, INK);
         let tc = if self.time <= 100 && (self.tick / 15).is_multiple_of(2) { RED_HI } else { WHITE };
-        f.text_outlined(&FONT, 168, 1, "时间", WHITE, INK);
+        f.text_outlined(&FONT, 168, 1, lang().pick("TIME", "时间"), WHITE, INK);
         f.text_outlined(&FONT, 196, 1, &format!("{:03}", self.time), tc, INK);
     }
 
     fn draw_intro(&mut self) {
         let f = &mut self.frame;
         f.clear(INK);
-        let name = LEVELS[self.level].name;
+        let name = LEVELS[self.level].label();
         let big = FONT.sprite(name, WHITE).scaled(2);
         f.blit(&big, (W as i32 - big.w) / 2, 50, false);
         f.blit(&self.art.small[0], 96, 92, false);
         f.text(&FONT, 118, 94, &format!("× {}", self.lives), WHITE);
-        f.text_center(&FONT, 130, &format!("得分 {:06}", self.score), GRAY);
+        f.text_center(&FONT, 130, &lang().pick(format!("SCORE {:06}", self.score), format!("得分 {:06}", self.score)), GRAY);
     }
 
     fn draw_title(&mut self) {
@@ -2183,8 +2187,9 @@ impl Game {
             f.blit(&a.fill, x, 144, false);
         }
         // 标题：大字带阴影。
-        let title = FONT.sprite("疾风邮差", GOLD_HI).scaled(3);
-        let shade = FONT.sprite("疾风邮差", RED_LO).scaled(3);
+        let name = lang().pick("GALE COURIER", "疾风邮差");
+        let title = FONT.sprite(name, GOLD_HI).scaled(3);
+        let shade = FONT.sprite(name, RED_LO).scaled(3);
         let tx = (W as i32 - title.w) / 2;
         f.blit(&shade, tx + 3, 21, false);
         f.blit(&title, tx, 18, false);
@@ -2197,25 +2202,26 @@ impl Game {
             f.rect(run - 20 - k * 6, y, 14, 1, WHITE);
         }
         f.blit(s, run, 96, false);
-        let name = LEVELS[self.level].name;
+        let name = LEVELS[self.level].label();
         let pick = if self.unlocked > 0 { format!("← {} →", name) } else { name.to_string() };
         f.text_outlined(&FONT, (W as i32 - FONT.width(&pick)) / 2, 62, &pick, WHITE, INK);
         if (tick / 30).is_multiple_of(2) {
-            f.text_outlined(&FONT, (W as i32 - FONT.width("按 START 开始")) / 2, 78, "按 START 开始", GOLD_HI, INK);
+            let s = lang().pick("PRESS START", "按 START 开始");
+            f.text_outlined(&FONT, (W as i32 - FONT.width(s)) / 2, 78, s, GOLD_HI, INK);
         }
-        let hi = format!("最高 {}", self.hi);
+        let hi = lang().pick(format!("HI {}", self.hi), format!("最高 {}", self.hi));
         f.text_outlined(&FONT, (W as i32 - FONT.width(&hi)) / 2, 146, &hi, WHITE, INK);
     }
 
     fn draw_ending(&mut self) {
         let f = &mut self.frame;
         f.clear(NAVY);
-        let big = FONT.sprite("全部送达", GOLD_HI).scaled(2);
+        let big = FONT.sprite(lang().pick("ALL DELIVERED", "全部送达"), GOLD_HI).scaled(2);
         f.blit(&big, (W as i32 - big.w) / 2, 30, false);
-        f.text_center(&FONT, 70, "邮件大盗抓到了", WHITE);
-        f.text_center(&FONT, 86, "今天的急件一封不少", WHITE);
-        f.text_center(&FONT, 110, &format!("得分 {}", self.score), WHITE);
-        f.text_center(&FONT, 126, &format!("最高 {}", self.hi), GOLD_HI);
+        f.text_center(&FONT, 70, lang().pick("The mail thief is caught", "邮件大盗抓到了"), WHITE);
+        f.text_center(&FONT, 86, lang().pick("Every letter got through", "今天的急件一封不少"), WHITE);
+        f.text_center(&FONT, 110, &lang().pick(format!("SCORE {}", self.score), format!("得分 {}", self.score)), WHITE);
+        f.text_center(&FONT, 126, &lang().pick(format!("HI {}", self.hi), format!("最高 {}", self.hi)), GOLD_HI);
         let run = (self.tick as i32).rem_euclid(W as i32 + 32) - 16;
         f.blit(&self.art.small[[1, 2, 3, 2][(self.tick / 5 % 4) as usize]], run, 142, false);
     }

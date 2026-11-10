@@ -12,7 +12,7 @@ mod levels;
 
 use vibegame::FONT;
 use levels::{LEVELS, MIXES};
-use vibegame::full::{key, tone, tone_wav, Channel, Frame, Keys, Music, Song, Sprite, Track, W};
+use vibegame::full::{key, lang, tone, tone_wav, Channel, Frame, Keys, Lang, Music, Song, Sprite, Track, W};
 use std::sync::Mutex;
 
 /// 场地多大（像素）。
@@ -1770,33 +1770,34 @@ impl Game {
                 self.draw_panel();
                 if self.paused && (self.tick / 20).is_multiple_of(2) {
                     let f = &mut self.frame;
-                    let w = FONT.width("暂停");
+                    let s = lang().pick("PAUSE", "暂停");
+                    let w = FONT.width(s);
                     f.rect(80 - w / 2 - 4, 72, w + 8, 16, INK);
-                    f.text(&FONT, 80 - w / 2, 74, "暂停", GOLD);
+                    f.text(&FONT, 80 - w / 2, 74, s, GOLD);
                 }
                 if let Some(t) = self.over {
                     // 「游戏结束」从场地下面升到中间。
                     let y = (160 - t as i32).max(72);
-                    let s = "游戏结束";
+                    let s = lang().pick("GAME OVER", "游戏结束");
                     let w = FONT.width(s);
                     self.frame.text_outlined(&FONT, 80 - w / 2, y, s, RED, INK);
                 }
             }
             Mode::Tally => self.draw_tally(),
             Mode::Over => {
-                let big = FONT.sprite("游戏结束", RED).scaled(2);
+                let big = FONT.sprite(lang().pick("GAME OVER", "游戏结束"), RED).scaled(2);
                 let f = &mut self.frame;
                 f.blit(&big, (W as i32 - big.w) / 2, 50, false);
-                f.text_center(&FONT, 100, &format!("得分 {}", self.score[0]), WHITE);
-                f.text_center(&FONT, 116, &format!("最高 {}", self.hi), GOLD);
+                f.text_center(&FONT, 100, &lang().pick(format!("SCORE {}", self.score[0]), format!("得分 {}", self.score[0])), WHITE);
+                f.text_center(&FONT, 116, &hi_line(self.hi), GOLD);
             }
             Mode::AllClear => {
-                let big = FONT.sprite("全部守住了", GOLD).scaled(2);
+                let big = FONT.sprite(lang().pick("ALL CLEAR", "全部守住了"), GOLD).scaled(2);
                 let f = &mut self.frame;
                 f.blit(&big, (W as i32 - big.w) / 2, 44, false);
-                f.text_center(&FONT, 92, "二十关都打完了", WHITE);
-                f.text_center(&FONT, 110, &format!("得分 {}", self.score[0]), WHITE);
-                f.text_center(&FONT, 126, &format!("最高 {}", self.hi), GOLD);
+                f.text_center(&FONT, 92, lang().pick("All 20 stages cleared", "二十关都打完了"), WHITE);
+                f.text_center(&FONT, 110, &lang().pick(format!("SCORE {}", self.score[0]), format!("得分 {}", self.score[0])), WHITE);
+                f.text_center(&FONT, 126, &hi_line(self.hi), GOLD);
             }
         }
     }
@@ -1913,24 +1914,25 @@ impl Game {
             let (cx, cy) = (x0 + 10 + (i as i32 % 4) * 9, 6 + (i as i32 / 4) * 9);
             f.blit(&a.icon, cx, cy, false);
         }
-        f.text(&FONT, x0 + 8, 56, "一号车", INK);
+        f.text(&FONT, x0 + 8, 56, lang().pick("1P", "一号车"), INK);
         f.blit(&a.life, x0 + 10, 72, false);
         f.text(&FONT, x0 + 22, 69, &format!("×{}", self.lives[0]), INK);
-        f.text(&FONT, x0 + 8, 86, "火力", INK);
+        f.text(&FONT, x0 + 8, 86, lang().pick("PWR", "火力"), INK);
         for k in 0..3 {
             let c = if k < level { GOLD } else { PANEL_LO };
             f.rect(x0 + 36 + k as i32 * 8, 90, 6, 6, c);
         }
         f.blit(&a.flag, x0 + 10, 106, false);
         f.text(&FONT, x0 + 24, 105, &format!("{}", self.stage + 1), INK);
-        f.text(&FONT, x0 + 8, 124, "分", INK);
+        f.text(&FONT, x0 + 8, 124, lang().pick("SCORE", "分"), INK);
         f.text(&FONT, x0 + 8, 140, &format!("{:06}", self.score[0]), WHITE);
     }
 
     fn draw_title(&mut self) {
         let tick = self.tick;
-        let big = FONT.sprite("铁壳守营", GOLD).scaled(3);
-        let shade = FONT.sprite("铁壳守营", R_LO).scaled(3);
+        let name = lang().pick("IRON CAMP", "铁壳守营");
+        let big = FONT.sprite(name, GOLD).scaled(3);
+        let shade = FONT.sprite(name, R_LO).scaled(3);
         let f = &mut self.frame;
         let a = &self.art;
         // 底下一排砖，两边一辆一号车、一辆敌车对着。
@@ -1942,19 +1944,19 @@ impl Game {
         let x = (W as i32 - big.w) / 2;
         f.blit(&shade, x + 3, 27, false);
         f.blit(&big, x, 24, false);
-        f.text_center(&FONT, 70, "守住营地，打掉二十辆敌车", WHITE);
+        f.text_center(&FONT, 70, lang().pick("Guard the camp. Destroy 20 tanks.", "守住营地，打掉二十辆敌车"), WHITE);
         f.blit(&a.tanks[0][Dir::Right.turns()][(tick / 8 % 2) as usize].recolor(&[(T_BODY, P_MID), (T_HI, P_HI), (T_LO, P_LO), (T_ACC, ORANGE)]), 40, 116, false);
         f.blit(&a.tanks[4][Dir::Left.turns()][(tick / 8 % 2) as usize].recolor(&[(T_BODY, V_MID), (T_HI, V_HI), (T_LO, V_LO), (T_ACC, GOLD)]), 184, 116, false);
         if (tick / 30).is_multiple_of(2) {
-            f.text_center(&FONT, 92, "按 START 开始", GOLD);
+            f.text_center(&FONT, 92, lang().pick("PRESS START", "按 START 开始"), GOLD);
         }
-        f.text_center(&FONT, 110, &format!("最高 {}", self.hi), WHITE);
+        f.text_center(&FONT, 110, &hi_line(self.hi), WHITE);
     }
 
     fn draw_select(&mut self) {
         let f = &mut self.frame;
         f.rect(0, 0, W as i32, 160, PANEL_LO);
-        let title = FONT.sprite(&format!("第 {} 关", self.stage + 1), WHITE).scaled(2);
+        let title = FONT.sprite(&stage_line(self.stage), WHITE).scaled(2);
         f.blit(&title, (W as i32 - title.w) / 2, 14, false);
         // 这一关的地图缩小看：一个小格画成 3 像素。
         let (ox, oy) = (90, 50);
@@ -1974,18 +1976,23 @@ impl Game {
             }
         }
         f.rect(ox + 27, oy + 54, 6, 6, CANVAS);
-        let hint = if self.unlocked > 0 { "上下选关　A 开始　B 回去" } else { "A 开始　B 回去" };
+        let hint = if self.unlocked > 0 {
+            lang().pick("UP/DOWN: STAGE  A: GO  B: BACK", "上下选关　A 开始　B 回去")
+        } else {
+            lang().pick("A: GO  B: BACK", "A 开始　B 回去")
+        };
         f.text_center(&FONT, 124, hint, GOLD);
-        f.text_center(&FONT, 140, &format!("开到第 {} 关", self.unlocked + 1), WHITE);
+        let n = self.unlocked + 1;
+        f.text_center(&FONT, 140, &lang().pick(format!("REACHED STAGE {n}"), format!("开到第 {n} 关")), WHITE);
     }
 
     fn draw_tally(&mut self) {
         let f = &mut self.frame;
         let a = &self.art;
         let shown = self.timer / 30;
-        f.text_center(&FONT, 6, &format!("第 {} 关", self.stage + 1), WHITE);
-        f.text_center(&FONT, 22, &format!("最高 {}", self.hi), GOLD);
-        let names = ["普通", "快车", "炮车", "重甲"];
+        f.text_center(&FONT, 6, &stage_line(self.stage), WHITE);
+        f.text_center(&FONT, 22, &hi_line(self.hi), GOLD);
+        let names = lang().pick(["BASIC", "FAST", "POWER", "ARMOR"], ["普通", "快车", "炮车", "重甲"]);
         let mut total = 0;
         for (r, kind) in Kind::ENEMIES.iter().enumerate() {
             if shown < r as u32 + 1 {
@@ -1994,18 +2001,34 @@ impl Game {
             let n = self.killed[r];
             total += n;
             let y = 42 + r as i32 * 18;
-            f.text(&FONT, 40, y, &format!("{:>5} 分", n * kind.points()), WHITE);
-            f.text(&FONT, 104, y, &format!("{:>2} 辆", n), WHITE);
+            let pts = n * kind.points();
+            f.text(&FONT, 40, y, &lang().pick(format!("{pts:>5} PTS"), format!("{pts:>5} 分")), WHITE);
+            f.text(&FONT, 104, y, &lang().pick(format!("{n:>2} ←"), format!("{n:>2} 辆")), WHITE);
             let s = a.tanks[r + 1][0][0].recolor(&[(T_BODY, E_MID), (T_HI, E_HI), (T_LO, E_LO), (T_ACC, RED)]);
             f.blit(&s, 150, y - 2, false);
             f.text(&FONT, 172, y, names[r], WHITE);
         }
         if shown >= 5 {
             f.rect(40, 116, 160, 1, WHITE);
-            f.text(&FONT, 104, 122, &format!("{:>2} 辆", total), WHITE);
-            f.text(&FONT, 40, 140, &format!("一号车 {}", self.score[0]), GOLD);
+            // 英文的「TOTAL」写在数前面，数和上面几行对齐。
+            match lang() {
+                Lang::En => f.text(&FONT, 68, 122, &format!("TOTAL {total:>2}"), WHITE),
+                Lang::Zh => f.text(&FONT, 104, 122, &format!("{total:>2} 辆"), WHITE),
+            };
+            let sc = self.score[0];
+            f.text(&FONT, 40, 140, &lang().pick(format!("1P {sc}"), format!("一号车 {sc}")), GOLD);
         }
     }
+}
+
+/// 「第几关」一行，按系统语言出。
+fn stage_line(stage: usize) -> String {
+    lang().pick(format!("STAGE {}", stage + 1), format!("第 {} 关", stage + 1))
+}
+
+/// 「最高分」一行，按系统语言出。
+fn hi_line(hi: u32) -> String {
+    lang().pick(format!("HI {hi}"), format!("最高 {hi}"))
 }
 
 static STATE: Mutex<Option<Game>> = Mutex::new(None);

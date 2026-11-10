@@ -40,8 +40,8 @@ pub fn page(dir: &Path) -> Result<String> {
             }
         }
     }
-    let title = if g.m.title.is_empty() { g.m.name.clone() } else { g.m.title.clone() };
-    let data = serde_json::json!({ "name": g.m.name, "title": title, "wasm": b64(&wasm), "assets": assets });
+    let title = g.m.title_in("en").to_string();
+    let data = serde_json::json!({ "name": g.m.name, "title": { "en": title, "zh": g.m.title_in("zh") }, "wasm": b64(&wasm), "assets": assets });
     // JSON 放进 <script>：`</` 换成 `<\/`，不会提前把 script 关上。
     let data = data.to_string().replace("</", "<\\/");
     Ok(PAGE.replace("{{title}}", &escape(&title)).replace("{{data}}", &data).replace("{{player}}", PLAYER))

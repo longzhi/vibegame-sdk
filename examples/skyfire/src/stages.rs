@@ -4,7 +4,7 @@
 //! 卷到顶就停，大怪出来。
 
 use crate::art::*;
-use vibegame::full::TileMap;
+use vibegame::full::{lang, TileMap};
 
 /// 地图多少行（一行 16 像素）。卷完要 (行数 × 16 − 160) × 2 帧，约 85 秒。
 pub const ROWS: i32 = 170;
@@ -12,17 +12,26 @@ pub const COLS: i32 = 15;
 
 pub struct StageInfo {
     pub name: &'static str,
+    /// 英文的关名。
+    pub name_en: &'static str,
     /// 地图块后面露出来的底色。
     pub base: u8,
     pub script: &'static str,
 }
 
 pub const STAGES: [StageInfo; 4] = [
-    StageInfo { name: "海岸线", base: SEA, script: COAST },
-    StageInfo { name: "沙海", base: DUNE, script: DESERT },
-    StageInfo { name: "夜云", base: NIGHT, script: CLOUDS },
-    StageInfo { name: "天穹要塞", base: METAL_LO, script: FORTRESS },
+    StageInfo { name: "海岸线", name_en: "Coastline", base: SEA, script: COAST },
+    StageInfo { name: "沙海", name_en: "Dune Sea", base: DUNE, script: DESERT },
+    StageInfo { name: "夜云", name_en: "Night Clouds", base: NIGHT, script: CLOUDS },
+    StageInfo { name: "天穹要塞", name_en: "Sky Fortress", base: METAL_LO, script: FORTRESS },
 ];
+
+impl StageInfo {
+    /// 按系统语言出的关名。
+    pub fn label(&self) -> &'static str {
+        lang().pick(self.name_en, self.name)
+    }
+}
 
 /// 一种敌人。
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

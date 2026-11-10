@@ -1,6 +1,7 @@
 [app]
 name      = "blank"
-title     = "捡星星"
+title     = "Star Catch"
+title_zh  = "捡星星"             # 系统是中文时用这个名字
 version   = "0.1.0"
 command   = "bin/blank.cwasm"
 screen    = "full"

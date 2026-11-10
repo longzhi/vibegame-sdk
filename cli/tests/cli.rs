@@ -84,7 +84,9 @@ fn web_is_one_file_with_the_game_inside() {
     let d = tmp("web");
     ok(&["web", blank().to_str().unwrap()], &d);
     let html = std::fs::read_to_string(d.join("dist/blank.html")).unwrap();
-    assert!(html.contains("<title>捡星星</title>"));
+    assert!(html.contains("<title>Star Catch</title>"), "默认英文的名字");
+    assert!(html.contains("\"zh\":\"捡星星\""), "中文的名字也带着");
+    assert!(html.contains("vgLang") && html.contains("lang: () =>"), "能换语言，游戏问得到");
     assert!(html.contains("\"wasm\":\"AGFzbQ"), "wasm 用 base64 塞在里面");
     assert!(html.contains("cover.png"));
     assert!(!html.contains("{{"), "模板的空都填上了");

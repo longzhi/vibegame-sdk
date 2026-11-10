@@ -16,7 +16,7 @@ mod tune;
 use art::*;
 use vibegame::FONT;
 use levels::LEVELS;
-use vibegame::full::{key, tone_wav, Channel, Frame, Keys, Music, Sprite, H, W};
+use vibegame::full::{key, lang, tone_wav, Channel, Frame, Keys, Music, Sprite, H, W};
 use std::sync::Mutex;
 
 /// 一个像素是 256 份。
@@ -2153,16 +2153,18 @@ impl Game {
                 self.draw_hud();
                 if self.paused && (self.tick / 20).is_multiple_of(2) {
                     let f = &mut self.frame;
-                    let w = FONT.width("暂停");
+                    let s = lang().pick("PAUSE", "暂停");
+                    let w = FONT.width(s);
                     f.rect(120 - w / 2 - 4, 70, w + 8, 16, INK);
-                    f.text(&FONT, 120 - w / 2, 72, "暂停", YELLOW_HI);
+                    f.text(&FONT, 120 - w / 2, 72, s, YELLOW_HI);
                 }
                 if self.mode == Mode::Clear {
                     let f = &mut self.frame;
                     f.rect(40, 54, 160, 48, INK);
                     f.frame_rect(41, 55, 158, 46, YELLOW);
-                    f.text_center(&FONT, 60, &format!("第 {} 关 打下来了", self.level + 1), YELLOW_HI);
-                    f.text_center(&FONT, 80, &format!("得分 {}", self.score), WHITE);
+                    let n = self.level + 1;
+                    f.text_center(&FONT, 60, &lang().pick(format!("STAGE {n} CLEAR"), format!("第 {n} 关 打下来了")), YELLOW_HI);
+                    f.text_center(&FONT, 80, &lang().pick(format!("SCORE {}", self.score), format!("得分 {}", self.score)), WHITE);
                 }
             }
             Mode::Over => self.draw_over(),
@@ -2866,11 +2868,13 @@ impl Game {
         let f = &mut self.frame;
         f.clear(BLACK);
         let l = &LEVELS[self.level];
-        let big = FONT.sprite(&format!("第 {} 关", self.level + 1), WHITE).scaled(2);
+        let n = self.level + 1;
+        let big = FONT.sprite(&lang().pick(format!("STAGE {n}"), format!("第 {n} 关")), WHITE).scaled(2);
         f.blit(&big, (W as i32 - big.w) / 2, 34, false);
-        f.text_center(&FONT, 66, l.name, YELLOW_HI);
-        f.text_center(&FONT, 96, &format!("队员 {}　还有 {} 条命", ["雷", "霆"][self.who], self.lives), WHITE);
-        f.text_center(&FONT, 114, &format!("得分 {}　最高 {}", self.score, self.hi), GRAY);
+        f.text_center(&FONT, 66, l.label(), YELLOW_HI);
+        let (who, lives) = (soldier(self.who), self.lives);
+        f.text_center(&FONT, 96, &lang().pick(format!("{who}  LIVES {lives}"), format!("队员 {who}　还有 {lives} 条命")), WHITE);
+        f.text_center(&FONT, 114, &score_line(self.score, self.hi), GRAY);
         let s = &self.art.hero[self.who][0][1 + (self.tick / 6 % 3) as usize];
         f.blit(s, 108, 128, false);
     }
@@ -2878,18 +2882,19 @@ impl Game {
     fn draw_over(&mut self) {
         let f = &mut self.frame;
         f.clear(BLACK);
-        let big = FONT.sprite("打不动了", RED_HI).scaled(2);
+        let big = FONT.sprite(lang().pick("GAME OVER", "打不动了"), RED_HI).scaled(2);
         f.blit(&big, (W as i32 - big.w) / 2, 30, false);
-        f.text_center(&FONT, 64, &format!("得分 {}　最高 {}", self.score, self.hi), WHITE);
+        f.text_center(&FONT, 64, &score_line(self.score, self.hi), WHITE);
         if self.continues > 0 {
-            let items = [format!("接着打（还能 {} 次）", self.continues), "不打了".to_string()];
+            let n = self.continues;
+            let items = [lang().pick(format!("CONTINUE ({n} LEFT)"), format!("接着打（还能 {n} 次）")), lang().pick("QUIT", "不打了").to_string()];
             for (i, t) in items.iter().enumerate() {
                 let y = 92 + i as i32 * 18;
                 let c = if i == self.menu { YELLOW_HI } else { GRAY };
                 f.text_center(&FONT, y, t, c);
                 if i == self.menu {
                     let w = FONT.width(t);
-                    f.text(&FONT, 120 - w / 2 - 14, y, "▶", YELLOW_HI);
+                    f.text(&FONT, 120 - w / 2 - 16, y, "→", YELLOW_HI);
                 }
             }
         }
@@ -2923,30 +2928,34 @@ impl Game {
             f.rect(x, 110 - hgt, 1, hgt, GRAY_LO);
         }
         // 标题：大字带红边。
-        let title = FONT.sprite("雷霆突击", YELLOW_HI).scaled(3);
-        let edge = FONT.sprite("雷霆突击", RED).scaled(3);
-        let tx = (W as i32 - title.w) / 2;
+        // 英文名长，放大 3 倍放不下，放大 2 倍，竖着摆在同一块地方的中间。
+        let (name, k) = lang().pick(("THUNDER STRIKE", 2), ("雷霆突击", 3));
+        let title = FONT.sprite(name, YELLOW_HI).scaled(k);
+        let edge = FONT.sprite(name, RED).scaled(k);
+        let (tx, ty) = ((W as i32 - title.w) / 2, 12 + (36 - title.h) / 2);
         for (dx, dy) in [(-1, 0), (1, 0), (0, -1), (0, 2), (2, 2)] {
-            f.blit(&edge, tx + dx, 12 + dy, false);
+            f.blit(&edge, tx + dx, ty + dy, false);
         }
-        f.blit(&title, tx, 12, false);
+        f.blit(&title, tx, ty, false);
         // 两个队员站在前面，选中的那个在亮处。
         for i in 0..2 {
             let s = &self.art.hero[i][2][0];
             let x = if i == 0 { 72 } else { 144 };
             let s = if i == self.who { s.clone() } else { s.recolor(&[(VEST, GRAY_LO), (VEST_LO, GRAY_LO), (SAND, GRAY_LO), (SAND_LO, GRAY_LO), (PANTS, GRAY_LO), (GREEN_LO, GRAY_LO)]) };
             f.blit(&s, x, 104, i == 1);
-            let name = ["雷", "霆"][i];
-            f.text_outlined(&FONT, x + 6, 130, name, if i == self.who { YELLOW_HI } else { GRAY }, INK);
+            let name = soldier(i);
+            f.text_outlined(&FONT, x + 12 - FONT.width(name) / 2, 130, name, if i == self.who { YELLOW_HI } else { GRAY }, INK);
         }
         if self.unlocked > 0 {
-            let l = format!("▲ 第 {} 关 {} ▼", self.level + 1, LEVELS[self.level].name);
+            let (n, name) = (self.level + 1, LEVELS[self.level].label());
+            let l = lang().pick(format!("↑ STAGE {n} {name} ↓"), format!("↑ 第 {n} 关 {name} ↓"));
             f.text_outlined(&FONT, (W as i32 - FONT.width(&l)) / 2, 66, &l, WHITE, INK);
         }
         if (tick / 30) % 2 == 0 {
-            f.text_outlined(&FONT, (W as i32 - FONT.width("按 START 开始")) / 2, 84, "按 START 开始", YELLOW_HI, INK);
+            let s = lang().pick("PRESS START", "按 START 开始");
+            f.text_outlined(&FONT, (W as i32 - FONT.width(s)) / 2, 84, s, YELLOW_HI, INK);
         }
-        let hi = format!("最高 {}", self.hi);
+        let hi = lang().pick(format!("HI {}", self.hi), format!("最高 {}", self.hi));
         f.text_outlined(&FONT, (W as i32 - FONT.width(&hi)) / 2, 146, &hi, WHITE, INK);
     }
 
@@ -2958,11 +2967,11 @@ impl Game {
         f.rect(0, 100, W as i32, 60, RED_LO);
         f.rect(0, 112, W as i32, 48, ORANGE);
         f.rect(0, 124, W as i32, 36, BLACK);
-        let big = FONT.sprite("任务完成", YELLOW_HI).scaled(2);
+        let big = FONT.sprite(lang().pick("MISSION COMPLETE", "任务完成"), YELLOW_HI).scaled(2);
         f.blit(&big, (W as i32 - big.w) / 2, 20, false);
-        f.text_center(&FONT, 56, "要塞拿下了", WHITE);
-        f.text_center(&FONT, 72, &format!("得分 {}", self.score), WHITE);
-        f.text_center(&FONT, 88, &format!("最高 {}", self.hi), YELLOW_HI);
+        f.text_center(&FONT, 56, lang().pick("The fortress is ours", "要塞拿下了"), WHITE);
+        f.text_center(&FONT, 72, &lang().pick(format!("SCORE {}", self.score), format!("得分 {}", self.score)), WHITE);
+        f.text_center(&FONT, 88, &lang().pick(format!("HI {}", self.hi), format!("最高 {}", self.hi)), YELLOW_HI);
         let run = (tick / 2).rem_euclid(W as i32 + 64) - 32;
         let a = &self.art;
         f.blit(&a.hero[0][0][1 + (tick / 6 % 3) as usize], run, 100, false);
@@ -2981,6 +2990,16 @@ vibegame::main!(|app| {
         g.frame.show();
     });
 });
+
+/// 两个突击队员的名字，按系统语言出。
+fn soldier(i: usize) -> &'static str {
+    lang().pick(["BOLT", "STORM"], ["雷", "霆"])[i]
+}
+
+/// 「得分、最高」一行。
+fn score_line(score: u32, hi: u32) -> String {
+    lang().pick(format!("SCORE {score}  HI {hi}"), format!("得分 {score}　最高 {hi}"))
+}
 
 #[cfg(test)]
 mod tests;

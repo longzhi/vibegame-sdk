@@ -397,3 +397,16 @@ fn lifts_carry_the_hero() {
     run(&mut g, 0, 30);
     assert!(g.hero.px().0 > x0 + 20, "跟着踏板走");
 }
+
+#[test]
+fn title_follows_the_system_language() {
+    use vibegame::full::{native::set_lang, Lang};
+    let mut g = Game::default();
+    g.draw();
+    let en = g.frame.pixels.clone();
+    set_lang(Lang::Zh);
+    g.draw();
+    let zh = g.frame.pixels.clone();
+    set_lang(Lang::En);
+    assert_ne!(en, zh);
+}

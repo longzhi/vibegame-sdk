@@ -1,6 +1,7 @@
 [app]
 name      = "skyfire"
-title     = "烈空战机"
+title     = "Skyfire"
+title_zh  = "烈空战机"
 version   = "0.1.0"
 command   = "bin/skyfire.cwasm"
 screen    = "full"

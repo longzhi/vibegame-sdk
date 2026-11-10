@@ -56,7 +56,9 @@ strip = true
 panic = "abort"
 "#
     );
-    let manifest = MANIFEST.replace("\"blank\"", &format!("\"{name}\"")).replace("bin/blank.cwasm", &format!("bin/{name}.cwasm")).replace("\"捡星星\"", &format!("\"{}\"", title.replace('"', "")));
+    let manifest = MANIFEST.replace("\"blank\"", &format!("\"{name}\"")).replace("bin/blank.cwasm", &format!("bin/{name}.cwasm"));
+    // 新游戏的名字只有一个（不写就是目录名）。要中文名再加 title_zh。
+    let manifest: String = manifest.lines().filter(|l| !l.starts_with("title_zh")).map(|l| if l.starts_with("title ") { format!("title     = \"{}\"\n", title.replace('"', "")) } else { format!("{l}\n") }).collect();
     let files: [(&str, &[u8]); 5] = [
         ("Cargo.toml", cargo.as_bytes()),
         ("app.toml", manifest.as_bytes()),

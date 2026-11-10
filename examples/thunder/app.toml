@@ -1,7 +1,8 @@
 # 游戏《雷霆突击》：横版射击。
 [app]
 name        = "thunder"
-title       = "雷霆突击"
+title       = "Thunder Strike"
+title_zh    = "雷霆突击"
 version     = "0.1.0"
 description = "横版射击：突击队员往前打，八个方向开枪，捡勋章换枪，四关，每关一个大怪"
 command     = "bin/thunder.cwasm"

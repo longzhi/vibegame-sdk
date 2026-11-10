@@ -1,5 +1,5 @@
 // VibeGame 的网页版宿主：在浏览器里跑一个游戏的 .wasm。
-// 游戏只用 12 个导入函数（qingos-sdk 的 docs/ABI.md「整屏 app 用到的」）。这里一样一样补上：
+// 游戏只用 13 个导入函数（qingos-sdk 的 docs/ABI.md「整屏 app 用到的」）。这里一样一样补上：
 // 画面画到 canvas，键盘、手柄、屏上的按钮当键，合成器照 qfull 的 Synth 一行一行抄过来，存档放 localStorage。
 // 页面在 window.VG 里给：{ name, title, wasm（base64）, assets: { 名字: base64 } }。
 (() => {
@@ -78,8 +78,44 @@
     return { samples, rate };
   }
 
-  // ---- 页面 ----
+  // ---- 语言：地址里的 ?lang=zh / ?lang=en，没写就看浏览器。游戏用 lang() 问 ----
   const vg = window.VG;
+  const TEXT = {
+    en: {
+      sound: "Press any key or tap the screen to turn on sound",
+      keys: "Arrows move · X = A · Z = B · S = X · A = Y · Q = L1 · W = R1 · Enter = Start · Right Shift = Select · Gamepads work too",
+      made: 'Made with <a href="https://github.com/longzhi/vibegame-sdk">VibeGame</a>',
+      other: "中文", error: "The game stopped with an error. See the browser console.",
+    },
+    zh: {
+      sound: "按任意键或点一下画面开声音",
+      keys: "方向键走 · X = A · Z = B · S = X · A = Y · Q = L1 · W = R1 · 回车 = Start · 右 Shift = Select · 也认手柄",
+      made: '用 <a href="https://github.com/longzhi/vibegame-sdk">VibeGame</a> 做的',
+      other: "English", error: "游戏出错了，看浏览器的控制台。",
+    },
+  };
+  const asked = (new URLSearchParams(location.search).get("lang") || "").toLowerCase();
+  let lang = asked.startsWith("zh") ? "zh" : asked.startsWith("en") ? "en" : (navigator.language || "").toLowerCase().startsWith("zh") ? "zh" : "en";
+  let soundOn = false;
+  function setLang(l) {
+    lang = l === "zh" ? "zh" : "en";
+    const t = TEXT[lang];
+    document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+    const title = typeof vg.title === "string" ? vg.title : vg.title[lang];
+    document.title = title;
+    const h1 = document.querySelector("h1"); if (h1) h1.textContent = title;
+    for (const el of document.querySelectorAll("[data-t]")) {
+      const k = el.dataset.t;
+      if (k === "sound" && soundOn) continue;
+      if (k === "made") el.innerHTML = t.made; else el.textContent = t[k];
+    }
+    const b = document.getElementById("lang"); if (b) b.textContent = t.other;
+  }
+  setLang(lang);
+  const langBtn = document.getElementById("lang");
+  if (langBtn) langBtn.addEventListener("click", () => setLang(lang === "zh" ? "en" : "zh"));
+
+  // ---- 页面 ----
   const canvas = document.getElementById("screen");
   const ctx = canvas.getContext("2d");
   const img = ctx.createImageData(W, H);
@@ -95,9 +131,11 @@
     el.addEventListener("pointerdown", on); el.addEventListener("pointerup", off); el.addEventListener("pointerleave", off); el.addEventListener("pointercancel", off);
   }
   canvas.addEventListener("pointerdown", startAudio);
-  // 嵌着这个页面的网页按键：postMessage({ vgKey: "a", down: true })。键名和 data-key 一样。
+  // 嵌着这个页面的网页按键：postMessage({ vgKey: "a", down: true })，键名和 data-key 一样；换语言：postMessage({ vgLang: "zh" })。
   addEventListener("message", (e) => {
-    const d = e.data, k = d && KEY[d.vgKey];
+    const d = e.data;
+    if (d && (d.vgLang === "en" || d.vgLang === "zh")) return setLang(d.vgLang);
+    const k = d && KEY[d.vgKey];
     if (!k) return;
     if (d.down) { touch |= k; tapped |= k; startAudio(); } else touch &= ~k;
   });
@@ -128,6 +166,7 @@
     const node = audio.createScriptProcessor(1024, 0, 1);
     node.onaudioprocess = (e) => synth.render(e.outputBuffer.getChannelData(0));
     node.connect(audio.destination);
+    soundOn = true;
     status.textContent = "";
   }
 
@@ -166,9 +205,10 @@
     asset_read(p, n) { const k = text(p, n); const v = vg.assets[k]; return v === undefined ? 0n : give(b64(v)); },
     now: () => BigInt(Math.floor(Date.now() / 1000)),
     tz_offset: () => -new Date().getTimezoneOffset() * 60,
+    lang: () => (lang === "zh" ? 1 : 0),
   };
 
-  function fail(e) { dead = true; status.textContent = "游戏出错了，看浏览器的控制台。"; console.error(e); if (synth) synth.stop(); }
+  function fail(e) { dead = true; status.textContent = TEXT[lang].error; console.error(e); if (synth) synth.stop(); }
 
   async function main() {
     synth = new Synth(48000);

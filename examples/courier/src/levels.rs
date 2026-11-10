@@ -11,20 +11,30 @@
 //! 主角站在第 7 行（地面是第 8、9 行）。小个子跳得到 4 格高，跑起来 5 格。
 
 use crate::art::Theme;
+use vibegame::full::lang;
 
 pub struct Level {
     pub name: &'static str,
+    /// 英文的关名。
+    pub name_en: &'static str,
     pub theme: Theme,
     pub parts: &'static [[&'static str; 10]],
 }
 
+impl Level {
+    /// 按系统语言出的关名。
+    pub fn label(&self) -> &'static str {
+        lang().pick(self.name_en, self.name)
+    }
+}
+
 pub const LEVELS: [Level; 6] = [
-    Level { name: "1-1 早班", theme: Theme::Street, parts: &L1 },
-    Level { name: "1-2 下水道", theme: Theme::Sewer, parts: &L2 },
-    Level { name: "1-3 屋顶", theme: Theme::Roof, parts: &L3 },
-    Level { name: "2-1 夜港", theme: Theme::Harbor, parts: &L4 },
-    Level { name: "2-2 夜屋顶", theme: Theme::NightRoof, parts: &L5 },
-    Level { name: "2-3 钟楼", theme: Theme::Tower, parts: &L6 },
+    Level { name: "1-1 早班", name_en: "1-1 Morning Run", theme: Theme::Street, parts: &L1 },
+    Level { name: "1-2 下水道", name_en: "1-2 Sewers", theme: Theme::Sewer, parts: &L2 },
+    Level { name: "1-3 屋顶", name_en: "1-3 Rooftops", theme: Theme::Roof, parts: &L3 },
+    Level { name: "2-1 夜港", name_en: "2-1 Night Harbor", theme: Theme::Harbor, parts: &L4 },
+    Level { name: "2-2 夜屋顶", name_en: "2-2 Night Roofs", theme: Theme::NightRoof, parts: &L5 },
+    Level { name: "2-3 钟楼", name_en: "2-3 Clock Tower", theme: Theme::Tower, parts: &L6 },
 ];
 
 /// 一关接成一张地图：10 行，一样宽。

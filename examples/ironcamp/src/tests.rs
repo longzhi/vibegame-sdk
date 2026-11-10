@@ -282,3 +282,15 @@ fn twenty_enemies_with_three_carriers() {
     assert_eq!(carriers, 3);
 }
 
+#[test]
+fn title_follows_the_system_language() {
+    use vibegame::full::native::set_lang;
+    let mut g = Game::default();
+    g.draw();
+    let en = g.frame.pixels.clone();
+    set_lang(Lang::Zh);
+    g.draw();
+    let zh = g.frame.pixels.clone();
+    set_lang(Lang::En);
+    assert_ne!(en, zh);
+}

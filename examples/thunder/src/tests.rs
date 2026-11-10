@@ -430,3 +430,16 @@ fn clearing_saves_progress_and_score_gives_lives() {
     assert_eq!(g.level, 1);
     assert_eq!(g.unlocked, 1);
 }
+
+#[test]
+fn title_follows_the_system_language() {
+    use vibegame::full::{native::set_lang, Lang};
+    let mut g = Game::default();
+    g.draw();
+    let en = g.frame.pixels.clone();
+    set_lang(Lang::Zh);
+    g.draw();
+    let zh = g.frame.pixels.clone();
+    set_lang(Lang::En);
+    assert_ne!(en, zh);
+}

@@ -11,9 +11,12 @@
 //! 主角跳得到 2 格高、2 格远。
 
 use crate::art::Theme;
+use vibegame::full::lang;
 
 pub struct Level {
     pub name: &'static str,
+    /// 英文的关名。
+    pub name_en: &'static str,
     pub theme: Theme,
     /// 竖着往上爬的关。
     pub vertical: bool,
@@ -24,11 +27,18 @@ pub struct Level {
     pub drops: &'static str,
 }
 
+impl Level {
+    /// 按系统语言出的关名。
+    pub fn label(&self) -> &'static str {
+        lang().pick(self.name_en, self.name)
+    }
+}
+
 pub const LEVELS: [Level; 4] = [
-    Level { name: "丛林", theme: Theme::Jungle, vertical: false, parts: &L1, runners: &[(8, 40), (60, 95), (110, 150)], drops: "MSRFLBS" },
-    Level { name: "瀑布", theme: Theme::Falls, vertical: true, parts: &L2, runners: &[], drops: "SMLRF" },
-    Level { name: "雪原", theme: Theme::Snow, vertical: false, parts: &L3, runners: &[(4, 30), (50, 80), (100, 140)], drops: "SLMBRS" },
-    Level { name: "要塞", theme: Theme::Fort, vertical: false, parts: &L4, runners: &[(6, 36), (56, 90), (104, 146)], drops: "SFLMBSR" },
+    Level { name: "丛林", name_en: "Jungle", theme: Theme::Jungle, vertical: false, parts: &L1, runners: &[(8, 40), (60, 95), (110, 150)], drops: "MSRFLBS" },
+    Level { name: "瀑布", name_en: "Waterfall", theme: Theme::Falls, vertical: true, parts: &L2, runners: &[], drops: "SMLRF" },
+    Level { name: "雪原", name_en: "Snowfield", theme: Theme::Snow, vertical: false, parts: &L3, runners: &[(4, 30), (50, 80), (100, 140)], drops: "SLMBRS" },
+    Level { name: "要塞", name_en: "Fortress", theme: Theme::Fort, vertical: false, parts: &L4, runners: &[(6, 36), (56, 90), (104, 146)], drops: "SFLMBSR" },
 ];
 
 /// 一关接成一张地图：每行一样宽。

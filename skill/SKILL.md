@@ -20,7 +20,7 @@ vibegame doctor          # 查缺什么，缺的给出命令
 ## 一个游戏从头到尾
 
 ```sh
-vibegame new star-catch --title 抓星星     # 从模板起一个：十字键走、捡星星、计时、存最高分
+vibegame new star-catch --title "Star Catch"     # 从模板起一个：十字键走、捡星星、计时、存最高分
 cd star-catch
 vibegame run                                # 开窗口玩（人玩）
 vibegame shot --frames 5,120 --input s.txt  # 你看：跑到第 5、120 帧各存一张 PNG
@@ -38,7 +38,7 @@ vibegame pair 192.168.1.23 && vibegame push # 推到掌机上直接开（掌机�
 
 - 字清楚吗？漏了的字会画成空心框。
 - 颜色对吗？东西在该在的地方吗？
-- 标题、开玩、过关、输了，每个画面都截一张。
+- 标题、开玩、过关、输了，每个画面都截一张。英文（默认）和中文（`--lang zh`）各截一套。
 
 按键脚本一行一条：`0-29 right` 是前 30 帧按着右，`30 a` 是第 30 帧按 A。帧从 0 数，`#` 后面是注释。
 键：`up down left right a b x y l1 r1 start select`。`shot --crop x,y,w,h` 只存一块，原大小的像素。
@@ -63,6 +63,9 @@ vibegame pair 192.168.1.23 && vibegame push # 推到掌机上直接开（掌机�
   `tone(声道, 频率, 毫秒, 音量)`。短录音：`tone_wav(&wav)`，16 位 PCM，最长 2 秒，和声道混着响。
 - **音乐**：`Track::parse(声道, 音量, "C4 E4 G4:2 r A#3")`，`Song::new(一格几帧, 循环, 几轨)`，`music.play(song)`，每帧 `music.tick()`。
   音效 `music.sfx(声道, 频率, 毫秒, 音量)`：音乐在那个声道上让一会儿，响完接上。
+- **语言** `vibegame::full::lang()`：系统是英文还是中文，默认英文。画面上的字都写两种：`lang().pick("GAME OVER", "游戏结束")`。
+  每次出字都问，别存进游戏的状态里：人能在暂停时换语言。英文字 6 像素宽，中文 12 像素，两种都要截图看放不放得下。
+  清单 `title` 写英文名，`title_zh` 写中文名。测试里用 `vibegame::full::native::set_lang(Lang::Zh)` 换（只换这个线程）。
 - **存档**：`vibegame::save("best", 字节)`、`vibegame::load("best")`、`vibegame::erase`。存在掌机上这个游戏自己的地方，浏览器里存在本机。
 - **日志**：`vibegame::log("…")`，`vibegame run` 印在终端里。
 
@@ -96,13 +99,12 @@ vibegame::main!(|app| {
 
 ## 抄样板
 
-https://github.com/longzhi/vibegame-sdk/tree/main/examples 有五款做完的游戏，要什么抄什么：
+https://github.com/longzhi/vibegame-sdk/tree/main/examples 有四款做完的游戏，要什么抄什么：
 
 - `courier`《疾风邮差》：横版跳跃。地图块、镜头跟着走、重力、踩敌人、大怪。
 - `thunder`《雷霆突击》：横版射击。子弹、八个方向打、一屏很多东西、音乐和爆炸声一起响。
 - `skyfire`《烈空战机》：竖版飞机射击。地图往上卷、出敌脚本、成片的子弹、分几块打的大怪、炸弹。
 - `ironcamp`《铁壳守营》：俯视坦克战。一格一格的地图、能打碎的墙、敌人的路线、二十关。
-- `duckpush`《鸭鸭搬面包》：推箱子。选关菜单、撤回、存档、测试里的求解器。
 
 ## 原创
 

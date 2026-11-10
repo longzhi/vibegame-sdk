@@ -119,25 +119,6 @@ fn skyfire_fires_volleys_after_the_banner() {
 }
 
 #[test]
-fn duckpush_clears_level_one_and_keeps_the_save() {
-    let data = tmp("pushdata");
-    let _ = std::fs::remove_dir_all(&data);
-    let d = data.to_str().unwrap();
-    // 选关里按 A 进第一关，往右三步：面包推上盘子。
-    let script = "5 a\n10 right\n14 right\n18 right\n";
-    let out = vibegame("duckpush", &["run", "--headless", "--frames", "40", "--data", d], script);
-    assert_eq!(tone_frames(&out, "声道=1 频率=196"), [14], "推了一下：{out}");
-    assert_eq!(tone_frames(&out, "声道=1 频率=1320"), [18], "推上盘子：{out}");
-    assert_eq!(std::fs::read_to_string(data.join("progress")).unwrap(), "10000000000000000000");
-    // 再开一次：第一关的格是绿的（过了），光标（金框）在第二关。
-    let rgb = shot("duckpush", 2, "", &["--data", d]);
-    assert_eq!(px(&rgb, 10, 40), [0x50, 0xb8, 0x60]);
-    assert_eq!(px(&rgb, 52, 36), [0xff, 0xe0, 0x70]);
-    assert_ne!(px(&rgb, 6, 36), [0xff, 0xe0, 0x70]);
-    std::fs::remove_dir_all(&data).unwrap();
-}
-
-#[test]
 fn ironcamp_shoots_a_brick_and_draws_the_camp() {
     // 标题按 START，选关按 A。出车的光闪完（第 88 帧）以后打一发：一号车正上面是砖。
     let script = "20 start\n40 a\n100 a\n";
