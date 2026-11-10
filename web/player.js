@@ -1,4 +1,4 @@
-// VibeGame 的网页版宿主：在浏览器里跑一个游戏的 .wasm（ADR 0034）。
+// VibeGame 的网页版宿主：在浏览器里跑一个游戏的 .wasm。
 // 游戏只用 12 个导入函数（qingos-sdk 的 docs/ABI.md「整屏 app 用到的」）。这里一样一样补上：
 // 画面画到 canvas，键盘、手柄、屏上的按钮当键，合成器照 qfull 的 Synth 一行一行抄过来，存档放 localStorage。
 // 页面在 window.VG 里给：{ name, title, wasm（base64）, assets: { 名字: base64 } }。

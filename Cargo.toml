@@ -1,4 +1,4 @@
-# VibeGame SDK（ADR 0034）：命令行、库、样板游戏。建在公开的 qingos-sdk 上。
+# VibeGame SDK：命令行、库、样板游戏。建在公开的 qingos-sdk 上。
 [workspace]
 resolver = "2"
 members = ["vibegame", "cli", "examples/*", "templates/blank"]

@@ -7,7 +7,7 @@
 //! assets/…            封面和别的素材
 //! ```
 //!
-//! 掌机上不带编译器，所以 `.cwasm` 在这里编（ADR 0034）。掌机的系统升级换了 wasmtime，旧包要重新打。
+//! 掌机上不带编译器，所以 `.cwasm` 在这里编。掌机的系统升级换了 wasmtime，旧包要重新打。
 
 use crate::game::Game;
 use anyhow::{Context, Result};
