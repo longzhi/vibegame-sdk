@@ -103,7 +103,7 @@ checksum = "3ded4057c258ba199e2d26386d3af3780957ecaee6c4ef4041c6b4b8b97c0b06"
 
 [[package]]
 name = "blank"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "vibegame",
 ]
@@ -238,7 +238,7 @@ dependencies = [
 
 [[package]]
 name = "courier"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "vibegame",
 ]
@@ -456,13 +456,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d4b8a88685455ed29a21542a33abd9cb6510b6b129abadabdcef0f4c55bc8f61"
 dependencies = [
  "litrs",
-]
-
-[[package]]
-name = "duckpush"
-version = "0.1.0"
-dependencies = [
- "vibegame",
 ]
 
 [[package]]
@@ -835,7 +828,7 @@ dependencies = [
 
 [[package]]
 name = "ironcamp"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "vibegame",
 ]
@@ -1322,8 +1315,8 @@ dependencies = [
 
 [[package]]
 name = "qapp"
-version = "0.1.0"
-source = "git+https://github.com/longzhi/qingos-sdk#802b17d68553d5d0eafeca05c06153c474a86378"
+version = "0.2.0"
+source = "git+https://github.com/longzhi/qingos-sdk#c6923a0cca4c6dd4e3b45d6e6a8ef3ff5223a1f9"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1333,8 +1326,8 @@ dependencies = [
 
 [[package]]
 name = "qfull"
-version = "0.1.0"
-source = "git+https://github.com/longzhi/qingos-sdk#802b17d68553d5d0eafeca05c06153c474a86378"
+version = "0.2.0"
+source = "git+https://github.com/longzhi/qingos-sdk#c6923a0cca4c6dd4e3b45d6e6a8ef3ff5223a1f9"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1343,8 +1336,8 @@ dependencies = [
 
 [[package]]
 name = "qtypes"
-version = "0.1.0"
-source = "git+https://github.com/longzhi/qingos-sdk#802b17d68553d5d0eafeca05c06153c474a86378"
+version = "0.2.0"
+source = "git+https://github.com/longzhi/qingos-sdk#c6923a0cca4c6dd4e3b45d6e6a8ef3ff5223a1f9"
 dependencies = [
  "serde",
  "serde_json",
@@ -1517,7 +1510,7 @@ checksum = "3a219298ac11a56ea9a6d2120044824d6f01aeb034955e7af7bc16858527deea"
 
 [[package]]
 name = "skyfire"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "vibegame",
 ]
@@ -1644,7 +1637,7 @@ dependencies = [
 
 [[package]]
 name = "thunder"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "vibegame",
 ]
@@ -1850,14 +1843,14 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 
 [[package]]
 name = "vibegame"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "qapp",
 ]
 
 [[package]]
 name = "vibegame-cli"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "cpal",
