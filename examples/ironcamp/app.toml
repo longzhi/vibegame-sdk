@@ -7,6 +7,6 @@ version     = "0.1.0"
 description = "开小坦克守营地：砖墙打得碎，钢墙打不动，一关二十辆敌车，二十关"
 command     = "bin/ironcamp.cwasm"
 screen      = "full"
-cover       = "assets/cover.png"   # 家上的封面：scripts/game-covers.py 画的，96×80
+cover       = "assets/cover.png"   # 家上的封面：tools/game-covers.py 画的，96×80
 rate_hz     = 60
 memory_mb   = 16

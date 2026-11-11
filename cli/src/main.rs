@@ -20,9 +20,10 @@ const USAGE: &str = "vibegame：做掌机游戏（240×160、256 色、每秒 60
   vibegame new <目录> [--title 名字]     从模板起一个新游戏
   vibegame run [游戏] [--lang zh]        开窗口玩，有声音。存档放在 <游戏>/save/
   vibegame run [游戏] --headless --frames N [--input 脚本] [--data 目录] [--lang zh]
-                                        不开窗口，按脚本按键，印出每一个音调
-  vibegame shot [游戏] --frames N[,N…] [--input 脚本] [--out a.png] [--scale K] [--crop x,y,w,h] [--lang zh]
-                                        跑到第 N 帧，存成 PNG（默认放大 3 倍）。几个帧号就存几张
+                                        不开窗口，按脚本按键，印出每一个音调和录音
+  vibegame shot [游戏] --frames N[,N…] [--input 脚本] [--data 目录] [--out a.png] [--scale K] [--crop x,y,w,h] [--lang zh]
+                                        跑到第 N 帧，存成 PNG（默认放大 3 倍）。几个帧号就存几张：a-N.png
+                                        看小精灵的细节：--crop 框住它，--scale 6 放大
   vibegame web [游戏] [--out a.html]     出网页版：一个 HTML 文件，浏览器里就能玩，能发给别人
   vibegame pack [游戏] [--out 目录]      打包成 <名字>.vg：拷进 TF 卡的「游戏」目录，或者 push
   vibegame pair <掌机的地址>             和掌机配对（掌机要开开发者模式，屏幕上有口令）
@@ -30,6 +31,7 @@ const USAGE: &str = "vibegame：做掌机游戏（240×160、256 色、每秒 60
   vibegame skill [install [--to 目录]]   印出给 agent 的说明；install 装进 Claude Code 和 Codex
 
 --lang 是游戏看到的系统语言：en（默认）或 zh。掌机默认英文，人在设置里换。
+--data 是存档放在哪个目录。--headless 和 shot 不给就存不了：vibegame::save 回 false，读也读不到。
 [游戏] 是游戏的目录（有 app.toml），不写是当前目录。run、shot 也能直接给一个 .wasm 文件。
 按键脚本一行一条：「帧 键…」或「起-止 键…」，帧从 0 数，# 后面是注释。
 键：up down left right a b x y l1 r1 start select。
@@ -112,7 +114,11 @@ fn run(mut args: Vec<String>) -> Result<()> {
             a.only(&["headless", "frames", "input", "data", "lang"])?;
             let frames: u64 = a.get("frames").context("--headless 要 --frames N")?.parse().context("--frames 要整数")?;
             let mut p = load(&a, a.path("data"))?;
-            p.run(frames, &script(&a)?, |n, t| println!("帧 {n} 音调 声道={} 频率={} 毫秒={} 音量={}", t.channel, t.hz, t.ms, t.volume))?;
+            p.run(frames, &script(&a)?, |n, t| match t.channel {
+                // 第五个声道放的是短录音（tone_wav），没有频率。
+                4 => println!("帧 {n} 录音 毫秒={} 音量={}", t.ms, t.volume),
+                _ => println!("帧 {n} 音调 声道={} 频率={} 毫秒={} 音量={}", t.channel, t.hz, t.ms, t.volume),
+            })?;
             println!("跑完 {frames} 帧");
             Ok(())
         }

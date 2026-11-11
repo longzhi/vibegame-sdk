@@ -6,6 +6,9 @@
 
     python3 tools/game-covers.py            # 画全部
     python3 tools/game-covers.py ironcamp   # 只画一款
+    python3 tools/game-covers.py blank      # 模板（vibegame new 带的）的封面
+
+封面上不写名字：家上封面底下有名字，跟着系统的语言换。
 """
 
 import math
@@ -615,13 +618,36 @@ def skyfire():
     return c
 
 
-COVERS = {"ironcamp": ironcamp, "courier": courier, "thunder": thunder, "skyfire": skyfire}
+# ---------------------------------------------------------------- 模板：捡星星
+
+
+def blank():
+    """模板的封面。不写字：vibegame new 起的游戏换了名字，封面也不会说错。"""
+    # 模板的两张精灵写在 hero()、star() 里，不是常量：照抄过来。
+    pal = {"r": "#d83848", "s": "#f8b888", "i": "#0c0c14", "g": "#ffd040"}
+    hero = ["..rrrr..", ".rrrrrr.", ".ssssss.", ".sisssi.", ".ssssss.", "..rrrr..", ".rr..rr.", ".i....i."]
+    star = ["...g...", "..ggg..", "ggggggg", ".ggggg.", ".gg.gg.", "g.....g"]
+    c = Canvas()
+    # 夜空：上面深蓝，往下淡一点。
+    c.gradient(0, H, ["#0c1030", "#181c40", "#2a2c5c"])
+    for x, y in ((9, 7), (31, 17), (60, 5), (83, 14), (20, 32), (74, 34)):
+        c.set(x, y, "#f0f0e8")
+    for x, y, k in ((10, 12, 2), (66, 18, 2), (40, 4, 1), (82, 46, 1)):
+        c.blit(scale(art(star, pal), k), x, y)
+    spr = scale(art(hero, pal), 4)
+    hx, hy = (W - len(spr[0])) // 2, H - len(spr) - 6
+    c.rect(0, H - 6, W, 6, "#4a3c58")
+    c.blit(spr, hx, hy)
+    return c
+
+
+COVERS = {"blank": blank, "ironcamp": ironcamp, "courier": courier, "thunder": thunder, "skyfire": skyfire}
 
 
 def main():
     names = sys.argv[1:] or list(COVERS)
     for n in names:
-        out = ROOT / "examples" / n / "assets" / "cover.png"
+        out = ROOT / ("templates" if n == "blank" else "examples") / n / "assets" / "cover.png"
         COVERS[n]().save(out)
         print(f"{out.relative_to(ROOT)}：{W}×{H}")
 

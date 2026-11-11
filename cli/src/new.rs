@@ -57,12 +57,26 @@ panic = "abort"
 "#
     );
     let manifest = MANIFEST.replace("\"blank\"", &format!("\"{name}\"")).replace("bin/blank.cwasm", &format!("bin/{name}.cwasm"));
-    // 新游戏的名字只有一个（不写就是目录名）。要中文名再加 title_zh。
-    let manifest: String = manifest.lines().filter(|l| !l.starts_with("title_zh")).map(|l| if l.starts_with("title ") { format!("title     = \"{}\"\n", title.replace('"', "")) } else { format!("{l}\n") }).collect();
+    // 新游戏的名字只有一个（不写就是目录名）。中文名留一行注释，要的时候打开。
+    let manifest: String = manifest
+        .lines()
+        .map(|l| {
+            if l.starts_with("title_zh") {
+                "# title_zh  = \"中文名\"          # 系统是中文时用这个名字\n".to_string()
+            } else if l.starts_with("title ") {
+                format!("title     = \"{}\"\n", title.replace('"', ""))
+            } else {
+                format!("{l}\n")
+            }
+        })
+        .collect();
+    // 标题画面上的名字也换成新的：不然第一次 run 看到的是模板的「STAR CATCH」。
+    let shown = format!("{:?}", title.to_uppercase());
+    let lib = LIB.replace("\"STAR CATCH\"", &shown).replace("\"捡星星\"", &shown);
     let files: [(&str, &[u8]); 5] = [
         ("Cargo.toml", cargo.as_bytes()),
         ("app.toml", manifest.as_bytes()),
-        ("src/lib.rs", LIB.as_bytes()),
+        ("src/lib.rs", lib.as_bytes()),
         ("assets/cover.png", COVER),
         (".gitignore", b"/target\n/bin\n/dist\n/save\n*.png\n!/assets/*.png\n"),
     ];
