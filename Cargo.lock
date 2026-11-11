@@ -1315,8 +1315,8 @@ dependencies = [
 
 [[package]]
 name = "qapp"
-version = "0.2.0"
-source = "git+https://github.com/second-state/qingos-sdk#c6923a0cca4c6dd4e3b45d6e6a8ef3ff5223a1f9"
+version = "0.3.0"
+source = "git+https://github.com/second-state/qingos-sdk#0ff2e3288fb23c1249b73de19bb00268da9319f7"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1326,18 +1326,21 @@ dependencies = [
 
 [[package]]
 name = "qfull"
-version = "0.2.0"
-source = "git+https://github.com/second-state/qingos-sdk#c6923a0cca4c6dd4e3b45d6e6a8ef3ff5223a1f9"
+version = "0.3.0"
+source = "git+https://github.com/second-state/qingos-sdk#0ff2e3288fb23c1249b73de19bb00268da9319f7"
 dependencies = [
  "anyhow",
  "chrono",
+ "serde",
+ "serde_json",
+ "toml",
  "wasmtime",
 ]
 
 [[package]]
 name = "qtypes"
-version = "0.2.0"
-source = "git+https://github.com/second-state/qingos-sdk#c6923a0cca4c6dd4e3b45d6e6a8ef3ff5223a1f9"
+version = "0.3.0"
+source = "git+https://github.com/second-state/qingos-sdk#0ff2e3288fb23c1249b73de19bb00268da9319f7"
 dependencies = [
  "serde",
  "serde_json",
