@@ -8,13 +8,13 @@ version = "0.2.0"
 edition = "2021"
 publish = false
 license = "MIT"
-repository = "https://github.com/longzhi/vibegame-sdk"
+repository = "https://github.com/second-state/vibegame-sdk"
 
 [workspace.dependencies]
 anyhow = "1"
 serde_json = "1"
-qapp = { git = "https://github.com/longzhi/qingos-sdk" }
-qfull = { git = "https://github.com/longzhi/qingos-sdk" }
+qapp = { git = "https://github.com/second-state/qingos-sdk" }
+qfull = { git = "https://github.com/second-state/qingos-sdk" }
 
 # 开发机上直接编 .wasm：编译器不优化时编一个小游戏要两秒多。
 [profile.dev.package.cranelift-codegen]

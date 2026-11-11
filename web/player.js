@@ -84,13 +84,13 @@
     en: {
       sound: "Press any key or tap the screen to turn on sound",
       keys: "Arrows move · X = A · Z = B · S = X · A = Y · Q = L1 · W = R1 · Enter = Start · Right Shift = Select · Gamepads work too",
-      made: 'Made with <a href="https://github.com/longzhi/vibegame-sdk">VibeGame</a>',
+      made: 'Made with <a href="https://github.com/second-state/vibegame-sdk">VibeGame</a>',
       other: "中文", error: "The game stopped with an error. See the browser console.",
     },
     zh: {
       sound: "按任意键或点一下画面开声音",
       keys: "方向键走 · X = A · Z = B · S = X · A = Y · Q = L1 · W = R1 · 回车 = Start · 右 Shift = Select · 也认手柄",
-      made: '用 <a href="https://github.com/longzhi/vibegame-sdk">VibeGame</a> 做的',
+      made: '用 <a href="https://github.com/second-state/vibegame-sdk">VibeGame</a> 做的',
       other: "English", error: "游戏出错了，看浏览器的控制台。",
     },
   };

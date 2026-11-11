@@ -8,7 +8,7 @@
 要先有 Rust。没有就先到 [rustup.rs](https://rustup.rs) 装。
 
 ```sh
-cargo install --git https://github.com/longzhi/vibegame-sdk vibegame-cli
+cargo install --git https://github.com/second-state/vibegame-sdk vibegame-cli
 rustup target add wasm32-unknown-unknown
 vibegame doctor               # 查缺什么，给出补上的命令
 vibegame skill install        # 给 Claude Code、Codex 装上说明；别的 agent 让它跑 vibegame skill
@@ -86,7 +86,7 @@ vibegame run --headless --frames 300 --input s.txt   # 印出每一个音调
 
 ## 建在什么上
 
-游戏是 [QingOS](https://github.com/longzhi/qingos-sdk) 上的一个整屏 app。写 app 的库（qapp）和放整屏 app 的库（qfull）在 qingos-sdk 里，这里用 git 依赖。
+游戏是 [QingOS](https://github.com/second-state/qingos-sdk) 上的一个整屏 app。写 app 的库（qapp）和放整屏 app 的库（qfull）在 qingos-sdk 里，这里用 git 依赖。
 
 ## 开源协议
 

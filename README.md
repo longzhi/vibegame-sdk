@@ -8,7 +8,7 @@ You write games in Rust and build them to wasm. Write them yourself, or let an a
 You need Rust. If you do not have it, install it from [rustup.rs](https://rustup.rs) first.
 
 ```sh
-cargo install --git https://github.com/longzhi/vibegame-sdk vibegame-cli
+cargo install --git https://github.com/second-state/vibegame-sdk vibegame-cli
 rustup target add wasm32-unknown-unknown
 vibegame doctor               # checks what is missing and prints the command to fix it
 vibegame skill install        # gives Claude Code and Codex the instructions; other agents run `vibegame skill`
@@ -89,7 +89,7 @@ The handheld has no compiler, so `pack` builds on your computer. When a system u
 
 ## What it is built on
 
-Each game is a full-screen app on [QingOS](https://github.com/longzhi/qingos-sdk). The library for apps (qapp) and the library that runs full-screen apps (qfull) are in qingos-sdk. This repository uses them as git dependencies.
+Each game is a full-screen app on [QingOS](https://github.com/second-state/qingos-sdk). The library for apps (qapp) and the library that runs full-screen apps (qfull) are in qingos-sdk. This repository uses them as git dependencies.
 
 ## License
 

@@ -15,7 +15,7 @@ vibegame doctor          # 查缺什么，缺的给出命令
 ```
 
 没有 Rust（`cargo` 命令）先装 rustup：`curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`（Windows 看 https://rustup.rs）。
-没有 vibegame 命令就装：`cargo install --git https://github.com/longzhi/vibegame-sdk vibegame-cli`。
+没有 vibegame 命令就装：`cargo install --git https://github.com/second-state/vibegame-sdk vibegame-cli`。
 还要 wasm32 目标：`rustup target add wasm32-unknown-unknown`。
 
 ## 一个游戏从头到尾
@@ -114,7 +114,7 @@ vibegame::main!(|app| {
 
 ## 抄样板
 
-https://github.com/longzhi/vibegame-sdk/tree/main/examples 有四款做完的游戏，要什么抄什么。
+https://github.com/second-state/vibegame-sdk/tree/main/examples 有四款做完的游戏，要什么抄什么。
 游戏编过一次，样板也在本机：`~/.cargo/git/checkouts/vibegame-sdk-*/<提交>/examples/`，不上网也能读。
 
 - `courier`《疾风邮差》：横版跳跃。地图块、镜头跟着走、重力、踩敌人、大怪。

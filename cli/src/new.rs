@@ -10,7 +10,7 @@ const COVER: &[u8] = include_bytes!("../../templates/blank/assets/cover.png");
 /// 给 agent 的说明（Skill）。Claude Code、Codex 装成技能，别的 agent 跑 `vibegame skill` 读。
 pub const SKILL: &str = include_str!("../../skill/SKILL.md");
 
-const REPO: &str = "https://github.com/longzhi/vibegame-sdk";
+const REPO: &str = "https://github.com/second-state/vibegame-sdk";
 
 /// 起一个游戏。`sdk` 是本地的 vibegame-sdk 目录：改 SDK 的人用，平常从 GitHub 拿。
 pub fn create(dir: &Path, title: Option<&str>, sdk: Option<&Path>) -> Result<()> {
