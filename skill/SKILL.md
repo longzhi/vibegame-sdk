@@ -14,6 +14,7 @@ description: 做 VibeGame 掌机上的像素游戏：240×160、256 色、每秒
 vibegame doctor          # 查缺什么，缺的给出命令
 ```
 
+没有 Rust（`cargo` 命令）先装 rustup：`curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`（Windows 看 https://rustup.rs）。
 没有 vibegame 命令就装：`cargo install --git https://github.com/longzhi/vibegame-sdk vibegame-cli`。
 还要 wasm32 目标：`rustup target add wasm32-unknown-unknown`。
 
@@ -32,6 +33,11 @@ vibegame pair 192.168.1.23 && vibegame push # 推到掌机上直接开（掌机�
 
 `vibegame help` 看全部命令和选项。
 
+`new --title` 换清单的 `title` 和标题画面上的名字。还要自己做三件事：
+- 要中文名就打开 `app.toml` 里 `title_zh` 那行注释。
+- 代码里别的字（「PRESS START」、计分）照新游戏改。
+- 模板的封面是通用的一张（夜空、星星、小人），换成自己游戏的。
+
 ## 自己验：一定要看截图
 
 你看不到窗口。改了画面就截几张图，用读图片的工具看：
@@ -41,13 +47,21 @@ vibegame pair 192.168.1.23 && vibegame push # 推到掌机上直接开（掌机�
 - 标题、开玩、过关、输了，每个画面都截一张。英文（默认）和中文（`--lang zh`）各截一套。
 
 按键脚本一行一条：`0-29 right` 是前 30 帧按着右，`30 a` 是第 30 帧按 A。帧从 0 数，`#` 后面是注释。
-键：`up down left right a b x y l1 r1 start select`。`shot --crop x,y,w,h` 只存一块，原大小的像素。
+键：`up down left right a b x y l1 r1 start select`。`shot --crop x,y,w,h` 只存一块。
+看小精灵的细节（眼睛、几个像素的东西），用 `--crop` 框住它再加 `--scale 6`：整屏 3 倍的图看不清。
+`shot --out a.png` 给几个帧号时存成 `a-5.png`、`a-120.png`。
 `--data 目录` 给存档一个地方：`run` 开窗口时默认是游戏目录下的 `save/`。
+`--headless` 和 `shot` 不给 `--data` 就存不了（`vibegame::save` 回 false）。要截「标题上有最高分」这种图，给它一个目录。
+无头跑时 `tone_wav` 印成「帧 N 录音 毫秒=…」，别的印成「帧 N 音调 声道=… 频率=…」。
 
 规则用单元测试验：`cargo test`。测试里直接造 `Game::default()`，`keys.set(位)`，再调 `step()`，看状态。
 想知道第几帧起跳正好，在测试里循环试，试出来写进脚本。
 
 ## 写游戏用的东西（`vibegame::full`）
+
+下面是常用的。全部的函数看源码：`vibegame::full` 就是 qingos-sdk 的 `qapp::full`。
+游戏编过一次，源码就在 `~/.cargo/git/checkouts/qingos-sdk-*/<提交>/qapp/src/full.rs` 和 `full/` 下面。
+有几份时看游戏的 `Cargo.lock` 里 qingos-sdk 那一行的提交。
 
 - **画面** `Frame`：240×160，一个像素一个字节，是调色板的一格。调色板 256 格，`frame.palette[格] = [r, g, b]`。
   `clear`、`set`、`rect`、`blit(&精灵, x, y, 左右翻)`、`frame_rect`。每帧最后 `frame.show()` 一次。
@@ -90,16 +104,18 @@ vibegame::main!(|app| {
 ## 约定
 
 - **清单** `app.toml`：`name` 是英文小写，和目录名一样。`screen = "full"`、`rate_hz = 60` 不改。
-  `cover` 是掌机的家上的封面，`assets/` 下一张 96×80 的 PNG。画一张，别直接截图。
+  `cover` 是掌机的家上的封面，`assets/` 下一张 96×80 的 PNG。画一张，别直接截图。封面上不写名字：家上封面底下有名字，跟着系统的语言换。
+  样板的封面是 `tools/game-covers.py` 一个像素一个像素画的（Python 加 Pillow：`pip install pillow`），照它写一个。
 - **调色板**：格子编号起名字（`const INK: u8 = 1;`），画的时候只写名字。第 0 格当背景。
 - **位置**用整数（比如 1/16 像素），不用浮点。随机数自己写，开局从同一个数开始。这样同样的按键每次跑出来一样，截图和测试才稳。
 - **主角** 16×16 左右。动画是几张精灵换着画：走两张，跳一张。
 - **声音**：旋律放 `Square1`，低音放 `Triangle`，鼓点放 `Noise`，音效放 `Square2` 或用 `sfx` 借一个声道。跳、捡东西、打中各用不一样的高低。
-  爆炸这种声音：代码里生成一小段噪声慢慢变小的 WAV，`tone_wav` 放。
+  爆炸这种声音：代码里生成一小段噪声慢慢变小的 WAV，`tone_wav` 放。库里没有现成的，抄 `skyfire` 的 `boom_wav`。
 
 ## 抄样板
 
-https://github.com/longzhi/vibegame-sdk/tree/main/examples 有四款做完的游戏，要什么抄什么：
+https://github.com/longzhi/vibegame-sdk/tree/main/examples 有四款做完的游戏，要什么抄什么。
+游戏编过一次，样板也在本机：`~/.cargo/git/checkouts/vibegame-sdk-*/<提交>/examples/`，不上网也能读。
 
 - `courier`《疾风邮差》：横版跳跃。地图块、镜头跟着走、重力、踩敌人、大怪。
 - `thunder`《雷霆突击》：横版射击。子弹、八个方向打、一屏很多东西、音乐和爆炸声一起响。

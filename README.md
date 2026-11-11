@@ -5,9 +5,12 @@ English · [中文](README.zh-CN.md)
 Make pixel games for the VibeGame handheld: 240×160, 256 colors, 60 frames a second, four chip-sound channels.
 You write games in Rust and build them to wasm. Write them yourself, or let an agent write them. Claude Code and Codex work, and so do other agents.
 
+You need Rust. If you do not have it, install it from [rustup.rs](https://rustup.rs) first.
+
 ```sh
 cargo install --git https://github.com/longzhi/vibegame-sdk vibegame-cli
 rustup target add wasm32-unknown-unknown
+vibegame doctor               # checks what is missing and prints the command to fix it
 vibegame skill install        # gives Claude Code and Codex the instructions; other agents run `vibegame skill`
 
 vibegame new star-catch && cd star-catch

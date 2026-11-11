@@ -5,9 +5,12 @@
 做 VibeGame 掌机上的像素游戏：240×160、256 色、每秒 60 帧，四个声道的芯片音。
 用 Rust 写，编成 wasm。你自己写，或者让 agent 写：Claude Code、Codex 都行，别的 agent 也行。
 
+要先有 Rust。没有就先到 [rustup.rs](https://rustup.rs) 装。
+
 ```sh
 cargo install --git https://github.com/longzhi/vibegame-sdk vibegame-cli
 rustup target add wasm32-unknown-unknown
+vibegame doctor               # 查缺什么，给出补上的命令
 vibegame skill install        # 给 Claude Code、Codex 装上说明；别的 agent 让它跑 vibegame skill
 
 vibegame new star-catch && cd star-catch

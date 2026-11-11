@@ -136,7 +136,9 @@ impl Game {
             Mode::Title => {
                 // 出字时问系统语言：人在暂停时换了，马上跟着变。
                 let name = lang().pick("STAR CATCH", "捡星星");
-                f.blit(&FONT.sprite(name, GOLD).scaled(3), 120 - FONT.width(name) * 3 / 2, 40, false);
+                // 放大到正好放得下，最大 3 倍：名字长了也不出屏。
+                let k = (232 / FONT.width(name).max(1)).clamp(1, 3);
+                f.blit(&FONT.sprite(name, GOLD).scaled(k), 120 - FONT.width(name) * k / 2, 40, false);
                 f.blit(&self.hero, 112, 92, false);
                 f.text_center(&FONT, 128, lang().pick("PRESS START", "按 START 开始"), WHITE);
             }
