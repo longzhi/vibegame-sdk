@@ -18,6 +18,20 @@ vibeplay doctor          # 查缺什么，缺的给出命令
 没有 vibeplay 命令就装：`cargo install --git https://github.com/second-state/vibeplay-sdk vibeplay-cli`。
 还要 wasm32 目标：`rustup target add wasm32-unknown-unknown`。
 
+## 先问人：游戏里的字用哪种语言
+
+动手之前先问：「游戏里的字用英文、中文，还是两种都要？」人在要求里明说过就不再问。人用中文跟你说话，不等于游戏要中文。
+现在只能选英文和中文。人要别的语言（比如日文），说清楚掌机的字和系统现在只有这两种，请他从里面选。
+
+照答案走：
+
+- **只要英文**：画面上的字直接写英文，不用 `lang()`。清单只写 `title`，把 `title_zh` 那行删掉。只截英文的图。
+- **只要中文**：画面上的字直接写中文，不用 `lang()`。清单的 `title` 写中文名，`title_zh` 那行删掉。只截图看中文。
+  中文字 12 像素宽，是英文的两倍，一行放不下就换行或者改短。
+- **两种都要**：画面上的字都写两种，用 `lang().pick`（见下面「语言」）。清单 `title` 写英文名，`title_zh` 写中文名。英文、中文各截一套。
+
+模板（`vibeplay new`）是两种都要的写法。只要一种时，把模板里的 `lang().pick(英文, 中文)` 换成那一种的字。
+
 ## 一个游戏从头到尾
 
 ```sh
@@ -34,7 +48,7 @@ vibeplay pair 192.168.1.23 && vibeplay push # 推到掌机上直接开（掌机�
 `vibeplay help` 看全部命令和选项。
 
 `new --title` 换清单的 `title` 和标题画面上的名字。还要自己做三件事：
-- 要中文名就打开 `app.toml` 里 `title_zh` 那行注释。
+- 名字照第一步定的语言写：两种都要时打开 `app.toml` 里 `title_zh` 那行注释；只要中文时 `title` 直接写中文名。
 - 代码里别的字（「PRESS START」、计分）照新游戏改。
 - 模板的封面是通用的一张（夜空、星星、小人），换成自己游戏的。
 
@@ -44,7 +58,7 @@ vibeplay pair 192.168.1.23 && vibeplay push # 推到掌机上直接开（掌机�
 
 - 字清楚吗？漏了的字会画成空心框。
 - 颜色对吗？东西在该在的地方吗？
-- 标题、开玩、过关、输了，每个画面都截一张。英文（默认）和中文（`--lang zh`）各截一套。
+- 标题、开玩、过关、输了，每个画面都截一张。两种语言都要时，英文（默认）和中文（`--lang zh`）各截一套；只要一种就截那一种。
 
 按键脚本一行一条：`0-29 right` 是前 30 帧按着右，`30 a` 是第 30 帧按 A。帧从 0 数，`#` 后面是注释。
 键：`up down left right a b x y l1 r1 start select`。`shot --crop x,y,w,h` 只存一块。
@@ -77,7 +91,7 @@ vibeplay pair 192.168.1.23 && vibeplay push # 推到掌机上直接开（掌机�
   `tone(声道, 频率, 毫秒, 音量)`。短录音：`tone_wav(&wav)`，16 位 PCM，最长 2 秒，和声道混着响。
 - **音乐**：`Track::parse(声道, 音量, "C4 E4 G4:2 r A#3")`，`Song::new(一格几帧, 循环, 几轨)`，`music.play(song)`，每帧 `music.tick()`。
   音效 `music.sfx(声道, 频率, 毫秒, 音量)`：音乐在那个声道上让一会儿，响完接上。
-- **语言** `vibeplay::full::lang()`：系统是英文还是中文，默认英文。画面上的字都写两种：`lang().pick("GAME OVER", "游戏结束")`。
+- **语言** `vibeplay::full::lang()`：系统是英文还是中文，默认英文。只在人要两种语言时用（见「先问人」）。画面上的字写两种：`lang().pick("GAME OVER", "游戏结束")`。
   每次出字都问，别存进游戏的状态里：人能在暂停时换语言。英文字 6 像素宽，中文 12 像素，两种都要截图看放不放得下。
   清单 `title` 写英文名，`title_zh` 写中文名。测试里用 `vibeplay::full::native::set_lang(Lang::Zh)` 换（只换这个线程）。
 - **存档**：`vibeplay::save("best", 字节)`、`vibeplay::load("best")`、`vibeplay::erase`。存在掌机上这个游戏自己的地方，浏览器里存在本机。

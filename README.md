@@ -60,6 +60,9 @@ In `app.toml`, put the English name in `title` and the Chinese name in `title_zh
 On your computer, add `--lang zh` to `vibeplay run` or `shot` to see the Chinese text.
 A web version reads `?lang=zh` from its address. Without it, the browser language decides, and the page has a switch at the bottom. A page that embeds it sends `postMessage({ vgLang: "zh" })`.
 
+A game does not have to use both languages. For a game in one language, write the text directly and do not use `lang()`. Put the name in `title` and leave out `title_zh`.
+The Skill asks which languages you want before the agent starts the game.
+
 ## How an agent checks its own work
 
 An agent cannot see a window, so the command line can run without one:
