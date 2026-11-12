@@ -25,6 +25,9 @@ pub struct AppSection {
     pub command: String,
     #[serde(default)]
     pub screen: String,
+    /// 交哪种画面：不写是 240×160、256 色；"640x480" 是真彩（RGB565），掌机不放大（QingOS 的 ADR 0036）。
+    #[serde(default)]
+    pub frame: String,
     #[serde(default)]
     pub rate_hz: u32,
     #[serde(default = "sixteen")]
@@ -64,6 +67,9 @@ impl Game {
         }
         if a.screen != "full" {
             bad.push("要写 screen = \"full\"（整屏页）".into());
+        }
+        if !a.frame.is_empty() && a.frame != "640x480" {
+            bad.push(format!("frame = \"{}\"：不写是 240×160，要真彩写 \"640x480\"", a.frame));
         }
         if a.rate_hz != 60 {
             bad.push(format!("rate_hz 是 {}，要 60", a.rate_hz));

@@ -22,7 +22,7 @@ const USAGE: &str = "vibegame：做掌机游戏（240×160、256 色、每秒 60
   vibegame run [游戏] --headless --frames N [--input 脚本] [--data 目录] [--lang zh]
                                         不开窗口，按脚本按键，印出每一个音调和录音
   vibegame shot [游戏] --frames N[,N…] [--input 脚本] [--data 目录] [--out a.png] [--scale K] [--crop x,y,w,h] [--lang zh]
-                                        跑到第 N 帧，存成 PNG（默认放大 3 倍）。几个帧号就存几张：a-N.png
+                                        跑到第 N 帧，存成 PNG（默认放大 3 倍；真彩的不放大，640×480）。几个帧号就存几张：a-N.png
                                         看小精灵的细节：--crop 框住它，--scale 6 放大
   vibegame web [游戏] [--out a.html]     出网页版：一个 HTML 文件，浏览器里就能玩，能发给别人
   vibegame pack [游戏] [--out 目录]      打包成 <名字>.vg：拷进 TF 卡的「游戏」目录，或者 push
@@ -33,6 +33,7 @@ const USAGE: &str = "vibegame：做掌机游戏（240×160、256 色、每秒 60
 --lang 是游戏看到的系统语言：en（默认）或 zh。掌机默认英文，人在设置里换。
 --data 是存档放在哪个目录。--headless 和 shot 不给就存不了：vibegame::save 回 false，读也读不到。
 [游戏] 是游戏的目录（有 app.toml），不写是当前目录。run、shot 也能直接给一个 .wasm 文件。
+清单写了 frame = \"640x480\" 的是真彩 app（640×480、RGB565）：run 放在 720×480 的窗口中间，shot 存 640×480。网页版不认。
 按键脚本一行一条：「帧 键…」或「起-止 键…」，帧从 0 数，# 后面是注释。
 键：up down left right a b x y l1 r1 start select。
 窗口的键：方向键，X=A，Z=B，S=X，A=Y，Q=L1，W=R1，回车=Start，右 Shift=Select，Esc 退出。";
@@ -200,7 +201,11 @@ fn shot(a: &Args) -> Result<()> {
         at.push(s.trim().parse().with_context(|| format!("--frames 里的 {s} 不是整数"))?);
     }
     at.sort();
-    let scale: usize = a.get("scale").map(str::parse).transpose().context("--scale 要整数")?.unwrap_or(3);
+    let name = game::module_of(&a.game(0))?.1;
+    let mut p = load(a, a.path("data"))?;
+    // 真彩的画面（frame = "640x480"）默认不放大：和掌机的屏上一样大。
+    let one = p.full().format() == qfull::full::Format::Rgb565;
+    let scale: usize = a.get("scale").map(str::parse).transpose().context("--scale 要整数")?.unwrap_or(if one { 1 } else { 3 });
     let crop = match a.get("crop") {
         Some(c) => {
             let v: Vec<usize> = c.split(',').map(|x| x.trim().parse()).collect::<Result<_, _>>().context("--crop 要 x,y,w,h 四个整数")?;
@@ -209,8 +214,6 @@ fn shot(a: &Args) -> Result<()> {
         }
         None => None,
     };
-    let name = game::module_of(&a.game(0))?.1;
-    let mut p = load(a, a.path("data"))?;
     let s = script(a)?;
     for n in &at {
         p.run(n - p.frame_no, &s, |_, _| {})?;

@@ -28,6 +28,9 @@ fn escape(s: &str) -> String {
 /// 出一个网页版。回 HTML。
 pub fn page(dir: &Path) -> Result<String> {
     let g = Game::open(dir)?;
+    if !g.m.frame.is_empty() {
+        anyhow::bail!("网页版还只认 240×160 的游戏：{} 写了 frame = \"{}\"", g.m.name, g.m.frame);
+    }
     let wasm = std::fs::read(g.build()?)?;
     let mut assets = serde_json::Map::new();
     let adir = dir.join("assets");
