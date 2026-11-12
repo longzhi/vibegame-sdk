@@ -1,5 +1,5 @@
 //! 不开窗口跑 examples/ 下的四款游戏：按脚本按键，看发了哪些音调、截图里的颜色，推箱子还看过关以后存档在不在。
-//! vibegame 自己把游戏编成 wasm，编到这次测试的临时目录里。
+//! vibeplay 自己把游戏编成 wasm，编到这次测试的临时目录里。
 
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -9,27 +9,27 @@ fn app_dir(name: &str) -> PathBuf {
 }
 
 fn tmp(name: &str) -> PathBuf {
-    Path::new(env!("CARGO_TARGET_TMPDIR")).join(format!("vibegame-examples-{}-{name}", std::process::id()))
+    Path::new(env!("CARGO_TARGET_TMPDIR")).join(format!("vibeplay-examples-{}-{name}", std::process::id()))
 }
 
-/// 一次只跑一个 vibegame：它们都调 cargo 编 wasm。
+/// 一次只跑一个 vibeplay：它们都调 cargo 编 wasm。
 static ONE_AT_A_TIME: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
-/// 跑一次 vibegame，回 stdout。不成就失败，带上 stderr。
-fn vibegame(app: &str, args: &[&str], script: &str) -> String {
+/// 跑一次 vibeplay，回 stdout。不成就失败，带上 stderr。
+fn vibeplay(app: &str, args: &[&str], script: &str) -> String {
     let _one = ONE_AT_A_TIME.lock().unwrap_or_else(|e| e.into_inner());
     let input = tmp(&format!("{app}-input.txt"));
     std::fs::write(&input, script).unwrap();
-    let out = Command::new(env!("CARGO_BIN_EXE_vibegame"))
+    let out = Command::new(env!("CARGO_BIN_EXE_vibeplay"))
         .args(args)
         .arg(app_dir(app))
         .arg("--input")
         .arg(&input)
-        .env("CARGO_TARGET_DIR", Path::new(env!("CARGO_TARGET_TMPDIR")).join("vibegame-wasm"))
+        .env("CARGO_TARGET_DIR", Path::new(env!("CARGO_TARGET_TMPDIR")).join("vibeplay-wasm"))
         .output()
         .unwrap();
     let _ = std::fs::remove_file(&input);
-    assert!(out.status.success(), "vibegame {app} {args:?} 失败：{}", String::from_utf8_lossy(&out.stderr));
+    assert!(out.status.success(), "vibeplay {app} {args:?} 失败：{}", String::from_utf8_lossy(&out.stderr));
     String::from_utf8(out.stdout).unwrap()
 }
 
@@ -39,7 +39,7 @@ fn shot(app: &str, frames: u32, script: &str, extra: &[&str]) -> Vec<u8> {
     let n = frames.to_string();
     let mut args = vec!["shot", "--frames", &n, "--scale", "1", "--out", png.to_str().unwrap()];
     args.extend_from_slice(extra);
-    vibegame(app, &args, script);
+    vibeplay(app, &args, script);
     let mut r = png::Decoder::new(std::io::BufReader::new(std::fs::File::open(&png).unwrap())).read_info().unwrap();
     let mut buf = vec![0; r.output_buffer_size().unwrap()];
     let info = r.next_frame(&mut buf).unwrap();
@@ -69,7 +69,7 @@ const CAP: [u8; 3] = [0x24, 0x34, 0x7c];
 fn courier_runs_jumps_and_scrolls() {
     // 第 5 帧开始，「1-1 早班」的字幕放两秒，往右跑，第 200 帧按 A 跳。
     let script = "5 start\n140-399 right\n200-215 a\n";
-    let out = vibegame("courier", &["run", "--headless", "--frames", "400"], script);
+    let out = vibeplay("courier", &["run", "--headless", "--frames", "400"], script);
     let jump: Vec<u64> = [392, 523, 784].iter().flat_map(|hz| tone_frames(&out, &format!("声道=1 频率={hz} 毫秒=53"))).collect();
     assert_eq!(jump, [201, 202, 204], "跳的音效是三个往上走的音：{out}");
     assert!(tone_frames(&out, "声道=2").len() > 10, "低音一直在响：{out}");
@@ -88,7 +88,7 @@ const BAND: [u8; 3] = [0xe0, 0x28, 0x28];
 fn thunder_shoots_while_the_music_plays() {
     // 字幕放完以后往右走，按住 B 开枪。
     let script = "5 start\n170-260 right\n170-260 b\n";
-    let out = vibegame("thunder", &["run", "--headless", "--frames", "260"], script);
+    let out = vibeplay("thunder", &["run", "--headless", "--frames", "260"], script);
     let shots = tone_frames(&out, "声道=3 频率=2000");
     assert!(shots.len() >= 5, "按住 B 连着打：{out}");
     assert_eq!(shots[0], 170, "按下就打");
@@ -108,7 +108,7 @@ const SHOT: [u8; 3] = [0xff, 0xd2, 0x3f];
 fn skyfire_fires_volleys_after_the_banner() {
     // 标题按 START，关头的字放两秒，再按住 A 连发。
     let script = "5 start\n130-250 a\n";
-    let out = vibegame("skyfire", &["run", "--headless", "--frames", "250"], script);
+    let out = vibeplay("skyfire", &["run", "--headless", "--frames", "250"], script);
     let shots = tone_frames(&out, "声道=1 频率=1760");
     assert!(shots.len() >= 8, "按住 A 一直打：{out}");
     assert!(shots[0] >= 130, "关头的字放完才能打");
@@ -122,7 +122,7 @@ fn skyfire_fires_volleys_after_the_banner() {
 fn ironcamp_shoots_a_brick_and_draws_the_camp() {
     // 标题按 START，选关按 A。出车的光闪完（第 88 帧）以后打一发：一号车正上面是砖。
     let script = "20 start\n40 a\n100 a\n";
-    let out = vibegame("ironcamp", &["run", "--headless", "--frames", "140"], script);
+    let out = vibeplay("ironcamp", &["run", "--headless", "--frames", "140"], script);
     assert_eq!(tone_frames(&out, "声道=1 频率=523"), [100], "开炮：{out}");
     assert_eq!(tone_frames(&out, "声道=3 频率=1800"), [100], "砖打掉一条：{out}");
     assert!(tone_frames(&out, "声道=0").len() >= 5, "开局的号角：{out}");

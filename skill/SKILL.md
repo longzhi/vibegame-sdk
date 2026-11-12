@@ -1,9 +1,9 @@
 ---
-name: vibegame
-description: 做 VibeGame 掌机上的像素游戏：240×160、256 色、每秒 60 帧，Rust 写，编成 wasm。用 vibegame 命令行起游戏、开窗口玩、按脚本跑、截图自己看、出网页版、打包成 .vg、推到掌机。人要做小游戏、改游戏、问 VibeGame 或掌机游戏怎么写时用。
+name: vibeplay
+description: 做 VibePlay 掌机上的像素游戏：240×160、256 色、每秒 60 帧，Rust 写，编成 wasm。用 vibeplay 命令行起游戏、开窗口玩、按脚本跑、截图自己看、出网页版、打包成 .vp、推到掌机。人要做小游戏、改游戏、问 VibePlay 或掌机游戏怎么写时用。
 ---
 
-# 做 VibeGame 游戏
+# 做 VibePlay 游戏
 
 游戏是一个 Rust 写的 wasm 模块加一个清单 `app.toml`。掌机每秒调它 60 次。每次它读按键、走一步、画一帧、发声音。
 你在开发机上写、跑、截图看；做好了出网页版给人玩，或者推到掌机上。
@@ -11,27 +11,27 @@ description: 做 VibeGame 掌机上的像素游戏：240×160、256 色、每秒
 ## 先装好
 
 ```sh
-vibegame doctor          # 查缺什么，缺的给出命令
+vibeplay doctor          # 查缺什么，缺的给出命令
 ```
 
 没有 Rust（`cargo` 命令）先装 rustup：`curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`（Windows 看 https://rustup.rs）。
-没有 vibegame 命令就装：`cargo install --git https://github.com/second-state/vibegame-sdk vibegame-cli`。
+没有 vibeplay 命令就装：`cargo install --git https://github.com/second-state/vibeplay-sdk vibeplay-cli`。
 还要 wasm32 目标：`rustup target add wasm32-unknown-unknown`。
 
 ## 一个游戏从头到尾
 
 ```sh
-vibegame new star-catch --title "Star Catch"     # 从模板起一个：十字键走、捡星星、计时、存最高分
+vibeplay new star-catch --title "Star Catch"     # 从模板起一个：十字键走、捡星星、计时、存最高分
 cd star-catch
-vibegame run                                # 开窗口玩（人玩）
-vibegame shot --frames 5,120 --input s.txt  # 你看：跑到第 5、120 帧各存一张 PNG
-vibegame run --headless --frames 300 --input s.txt   # 你听：印出每一个音调
-vibegame web                                # dist/star-catch.html：一个文件，浏览器里就能玩
-vibegame pack                               # dist/star-catch.vg：拷进 TF 卡的「游戏」目录
-vibegame pair 192.168.1.23 && vibegame push # 推到掌机上直接开（掌机要开开发者模式）
+vibeplay run                                # 开窗口玩（人玩）
+vibeplay shot --frames 5,120 --input s.txt  # 你看：跑到第 5、120 帧各存一张 PNG
+vibeplay run --headless --frames 300 --input s.txt   # 你听：印出每一个音调
+vibeplay web                                # dist/star-catch.html：一个文件，浏览器里就能玩
+vibeplay pack                               # dist/star-catch.vp：拷进 TF 卡的「游戏」目录
+vibeplay pair 192.168.1.23 && vibeplay push # 推到掌机上直接开（掌机要开开发者模式）
 ```
 
-`vibegame help` 看全部命令和选项。
+`vibeplay help` 看全部命令和选项。
 
 `new --title` 换清单的 `title` 和标题画面上的名字。还要自己做三件事：
 - 要中文名就打开 `app.toml` 里 `title_zh` 那行注释。
@@ -51,15 +51,15 @@ vibegame pair 192.168.1.23 && vibegame push # 推到掌机上直接开（掌机�
 看小精灵的细节（眼睛、几个像素的东西），用 `--crop` 框住它再加 `--scale 6`：整屏 3 倍的图看不清。
 `shot --out a.png` 给几个帧号时存成 `a-5.png`、`a-120.png`。
 `--data 目录` 给存档一个地方：`run` 开窗口时默认是游戏目录下的 `save/`。
-`--headless` 和 `shot` 不给 `--data` 就存不了（`vibegame::save` 回 false）。要截「标题上有最高分」这种图，给它一个目录。
+`--headless` 和 `shot` 不给 `--data` 就存不了（`vibeplay::save` 回 false）。要截「标题上有最高分」这种图，给它一个目录。
 无头跑时 `tone_wav` 印成「帧 N 录音 毫秒=…」，别的印成「帧 N 音调 声道=… 频率=…」。
 
 规则用单元测试验：`cargo test`。测试里直接造 `Game::default()`，`keys.set(位)`，再调 `step()`，看状态。
 想知道第几帧起跳正好，在测试里循环试，试出来写进脚本。
 
-## 写游戏用的东西（`vibegame::full`）
+## 写游戏用的东西（`vibeplay::full`）
 
-下面是常用的。全部的函数看源码：`vibegame::full` 就是 qingos-sdk 的 `qapp::full`。
+下面是常用的。全部的函数看源码：`vibeplay::full` 就是 qingos-sdk 的 `qapp::full`。
 游戏编过一次，源码就在 `~/.cargo/git/checkouts/qingos-sdk-*/<提交>/qapp/src/full.rs` 和 `full/` 下面。
 有几份时看游戏的 `Cargo.lock` 里 qingos-sdk 那一行的提交。
 
@@ -71,17 +71,17 @@ vibegame pair 192.168.1.23 && vibegame push # 推到掌机上直接开（掌机�
   `scaled(k)` 放大，`recolor(&[(旧, 新)])` 换色（被打中闪白）。
 - **地图** `TileMap::parse(&行, 16, |字符| 格)`：一格 16 像素，一屏 15×10 格。`draw(&mut frame, &图块, &cam)`；`hits(x, y, w, h, |格| 实心?)` 做碰撞。
 - **镜头** `Camera::follow(x, y, 世界宽, 世界高)`：主角走出画面中间那块才跟。`to_screen`、`sees`。
-- **字** `vibegame::FONT`：12 像素高，英文和常用中文都有。`frame.text(&FONT, x, y, "第 1 关", 颜色)`、`text_center`、`text_outlined`（压在花背景上加描边）。
+- **字** `vibeplay::FONT`：12 像素高，英文和常用中文都有。`frame.text(&FONT, x, y, "第 1 关", 颜色)`、`text_center`、`text_outlined`（压在花背景上加描边）。
   大字：`FONT.sprite("标题", 颜色).scaled(3)` 再 `blit`。
 - **声音**：四个声道。`Square1`、`Square2` 是方波，`Triangle` 是三角波，`Noise` 是噪声（频率越高越沙）。
   `tone(声道, 频率, 毫秒, 音量)`。短录音：`tone_wav(&wav)`，16 位 PCM，最长 2 秒，和声道混着响。
 - **音乐**：`Track::parse(声道, 音量, "C4 E4 G4:2 r A#3")`，`Song::new(一格几帧, 循环, 几轨)`，`music.play(song)`，每帧 `music.tick()`。
   音效 `music.sfx(声道, 频率, 毫秒, 音量)`：音乐在那个声道上让一会儿，响完接上。
-- **语言** `vibegame::full::lang()`：系统是英文还是中文，默认英文。画面上的字都写两种：`lang().pick("GAME OVER", "游戏结束")`。
+- **语言** `vibeplay::full::lang()`：系统是英文还是中文，默认英文。画面上的字都写两种：`lang().pick("GAME OVER", "游戏结束")`。
   每次出字都问，别存进游戏的状态里：人能在暂停时换语言。英文字 6 像素宽，中文 12 像素，两种都要截图看放不放得下。
-  清单 `title` 写英文名，`title_zh` 写中文名。测试里用 `vibegame::full::native::set_lang(Lang::Zh)` 换（只换这个线程）。
-- **存档**：`vibegame::save("best", 字节)`、`vibegame::load("best")`、`vibegame::erase`。存在掌机上这个游戏自己的地方，浏览器里存在本机。
-- **日志**：`vibegame::log("…")`，`vibegame run` 印在终端里。
+  清单 `title` 写英文名，`title_zh` 写中文名。测试里用 `vibeplay::full::native::set_lang(Lang::Zh)` 换（只换这个线程）。
+- **存档**：`vibeplay::save("best", 字节)`、`vibeplay::load("best")`、`vibeplay::erase`。存在掌机上这个游戏自己的地方，浏览器里存在本机。
+- **日志**：`vibeplay::log("…")`，`vibeplay run` 印在终端里。
 
 ## 骨架
 
@@ -89,7 +89,7 @@ vibegame pair 192.168.1.23 && vibegame push # 推到掌机上直接开（掌机�
 
 ```rust
 static GAME: Mutex<Option<Game>> = Mutex::new(None);
-vibegame::main!(|app| {
+vibeplay::main!(|app| {
     app.every(|| {
         let mut g = GAME.lock().unwrap();
         let g = g.get_or_insert_with(Game::default);
@@ -114,8 +114,8 @@ vibegame::main!(|app| {
 
 ## 抄样板
 
-https://github.com/second-state/vibegame-sdk/tree/main/examples 有四款做完的游戏，要什么抄什么。
-游戏编过一次，样板也在本机：`~/.cargo/git/checkouts/vibegame-sdk-*/<提交>/examples/`，不上网也能读。
+https://github.com/second-state/vibeplay-sdk/tree/main/examples 有四款做完的游戏，要什么抄什么。
+游戏编过一次，样板也在本机：`~/.cargo/git/checkouts/vibeplay-sdk-*/<提交>/examples/`，不上网也能读。
 
 - `courier`《疾风邮差》：横版跳跃。地图块、镜头跟着走、重力、踩敌人、大怪。
 - `thunder`《雷霆突击》：横版射击。子弹、八个方向打、一屏很多东西、音乐和爆炸声一起响。
@@ -131,6 +131,6 @@ https://github.com/second-state/vibegame-sdk/tree/main/examples 有四款做完�
 ## 推到掌机
 
 - 掌机上打开开发者模式（设置 → 系统）。屏幕上有地址和口令。
-- `vibegame pair <地址>` 输口令，配一次就行。`vibegame push` 打包、推过去、直接打开。`--watch` 一改就再推。
+- `vibeplay pair <地址>` 输口令，配一次就行。`vibeplay push` 打包、推过去、直接打开。`--watch` 一改就再推。
 - 同一个游戏再推，直接换掉，存档留着。新游戏掌机上会问一次装不装，要人按 A。
-- 不用 Wi‑Fi：`vibegame pack` 出的 `.vg` 拷进 TF 卡的「游戏」目录，插上掌机开机就装。
+- 不用 Wi‑Fi：`vibeplay pack` 出的 `.vp` 拷进 TF 卡的「游戏」目录，插上掌机开机就装。

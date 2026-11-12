@@ -9,4 +9,4 @@ description = "游戏《雷霆突击》：横版射击，两个突击队员，�
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-vibegame = { path = "../../vibegame" }
+vibeplay = { path = "../../vibeplay" }

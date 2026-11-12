@@ -1,4 +1,4 @@
-//! `vibegame new`：从模板起一个游戏。`vibegame skill`：给 agent 的说明。
+//! `vibeplay new`：从模板起一个游戏。`vibeplay skill`：给 agent 的说明。
 //! 模板是 templates/blank，编进命令行里：命令行装到哪都能起。
 
 use anyhow::{bail, Context, Result};
@@ -7,12 +7,12 @@ use std::path::{Path, PathBuf};
 const LIB: &str = include_str!("../../templates/blank/src/lib.rs");
 const MANIFEST: &str = include_str!("../../templates/blank/app.toml");
 const COVER: &[u8] = include_bytes!("../../templates/blank/assets/cover.png");
-/// 给 agent 的说明（Skill）。Claude Code、Codex 装成技能，别的 agent 跑 `vibegame skill` 读。
+/// 给 agent 的说明（Skill）。Claude Code、Codex 装成技能，别的 agent 跑 `vibeplay skill` 读。
 pub const SKILL: &str = include_str!("../../skill/SKILL.md");
 
-const REPO: &str = "https://github.com/second-state/vibegame-sdk";
+const REPO: &str = "https://github.com/second-state/vibeplay-sdk";
 
-/// 起一个游戏。`sdk` 是本地的 vibegame-sdk 目录：改 SDK 的人用，平常从 GitHub 拿。
+/// 起一个游戏。`sdk` 是本地的 vibeplay-sdk 目录：改 SDK 的人用，平常从 GitHub 拿。
 pub fn create(dir: &Path, title: Option<&str>, sdk: Option<&Path>) -> Result<()> {
     if dir.exists() && std::fs::read_dir(dir)?.next().is_some() {
         bail!("{} 已经有东西了：换一个新目录", dir.display());
@@ -24,12 +24,12 @@ pub fn create(dir: &Path, title: Option<&str>, sdk: Option<&Path>) -> Result<()>
     let dep = match sdk {
         Some(p) => {
             let p = std::fs::canonicalize(p).with_context(|| format!("没有 {}", p.display()))?;
-            if !p.join("vibegame/Cargo.toml").is_file() {
-                bail!("{} 不是 vibegame-sdk 的目录", p.display());
+            if !p.join("vibeplay/Cargo.toml").is_file() {
+                bail!("{} 不是 vibeplay-sdk 的目录", p.display());
             }
-            format!("vibegame = {{ path = \"{}\" }}", p.join("vibegame").display())
+            format!("vibeplay = {{ path = \"{}\" }}", p.join("vibeplay").display())
         }
-        None => format!("vibegame = {{ git = \"{REPO}\", tag = \"v{}\" }}", env!("CARGO_PKG_VERSION")),
+        None => format!("vibeplay = {{ git = \"{REPO}\", tag = \"v{}\" }}", env!("CARGO_PKG_VERSION")),
     };
     let title = title.unwrap_or(&name);
     let cargo = format!(
@@ -86,8 +86,8 @@ panic = "abort"
         std::fs::write(&p, bytes).with_context(|| format!("写不了 {}", p.display()))?;
     }
     println!("起好了：{}", dir.display());
-    println!("  cd {} && vibegame run        开窗口玩", dir.display());
-    println!("  规则在 src/lib.rs 的 step，画面在 draw。给 agent 看的说明：vibegame skill");
+    println!("  cd {} && vibeplay run        开窗口玩", dir.display());
+    println!("  规则在 src/lib.rs 的 step，画面在 draw。给 agent 看的说明：vibeplay skill");
     Ok(())
 }
 
@@ -105,11 +105,11 @@ pub fn install_skill(to: Option<&Path>) -> Result<()> {
         }
     };
     for d in dirs {
-        let p = d.join("vibegame/SKILL.md");
+        let p = d.join("vibeplay/SKILL.md");
         std::fs::create_dir_all(p.parent().unwrap())?;
         std::fs::write(&p, SKILL).with_context(|| format!("写不了 {}", p.display()))?;
         println!("{}", p.display());
     }
-    println!("别的 agent：让它先跑 vibegame skill 读说明。");
+    println!("别的 agent：让它先跑 vibeplay skill 读说明。");
     Ok(())
 }

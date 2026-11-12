@@ -27,13 +27,13 @@ const KEYS: [(Key, u32); 12] = [
 
 pub fn play(name: &str, p: &mut Player) -> Result<()> {
     let (w, h) = (W * 3, H * 3);
-    let mut win = Window::new(&format!("vibegame · {name}"), w, h, WindowOptions::default()).map_err(|e| anyhow!("开不了窗口：{e}"))?;
+    let mut win = Window::new(&format!("vibeplay · {name}"), w, h, WindowOptions::default()).map_err(|e| anyhow!("开不了窗口：{e}"))?;
     // 按帧的节奏自己管，不让窗口库再睡一遍。
     win.set_target_fps(0);
     let _sound = match audio(p.full().clone()) {
         Ok(s) => Some(s),
         Err(e) => {
-            eprintln!("vibegame：没有声音：{e:#}");
+            eprintln!("vibeplay：没有声音：{e:#}");
             None
         }
     };
@@ -68,7 +68,7 @@ fn audio(full: Arc<Full>) -> Result<cpal::Stream> {
     let channels = cfg.channels() as usize;
     full.synth(|s| s.set_rate(cfg.sample_rate().0));
     let mut mono = Vec::new();
-    let err = |e| eprintln!("vibegame：声音出错：{e}");
+    let err = |e| eprintln!("vibeplay：声音出错：{e}");
     let stream = match cfg.sample_format() {
         cpal::SampleFormat::F32 => dev.build_output_stream(
             &cfg.into(),

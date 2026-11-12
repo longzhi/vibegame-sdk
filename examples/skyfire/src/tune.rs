@@ -1,6 +1,6 @@
 //! 曲子，都是自己写的。旋律在方波 1，低音在三角波，鼓在噪声，方波 2 留给音效。
 
-use vibegame::full::{Channel, Song, Track};
+use vibeplay::full::{Channel, Song, Track};
 
 fn t(ch: Channel, vol: u32, notes: &str) -> Track {
     Track::parse(ch, vol, notes).expect("曲子写错了")

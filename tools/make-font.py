@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""给 vibegame 库烘自带的点阵字（SDK 的维护者用，写游戏的人不用跑）。
+"""给 vibeplay 库烘自带的点阵字（SDK 的维护者用，写游戏的人不用跑）。
 
 字体是缝合像素字体 12px 等宽（Fusion Pixel Font，TakWolf，OFL-1.1）：
   https://github.com/TakWolf/fusion-pixel-font/releases
-  下 fusion-pixel-font-12px-monospaced-bdf-v<版本>.zip。字体文件不进仓库，许可证在 vibegame/fonts/fusion-pixel-font/。
+  下 fusion-pixel-font-12px-monospaced-bdf-v<版本>.zip。字体文件不进仓库，许可证在 vibeplay/fonts/fusion-pixel-font/。
 
   python3 tools/make-font.py <字体 .zip 或 .bdf>
 
-带的字：可打印的 ASCII、GB2312 里的全部字（6763 个汉字和常用的符号）。写 vibegame/src/font.rs。
+带的字：可打印的 ASCII、GB2312 里的全部字（6763 个汉字和常用的符号）。写 vibeplay/src/font.rs。
 """
 import pathlib, re, sys, zipfile
 
@@ -69,7 +69,7 @@ def lit(ch):
 lines = [
     "// 由 tools/make-font.py 生成，不要手改。",
     f"// 字形来自缝合像素字体 12px 等宽（{font_name}），https://github.com/TakWolf/fusion-pixel-font",
-    "// Copyright (c) 2022, TakWolf。SIL Open Font License 1.1，全文和它带的上游许可证在 vibegame/fonts/fusion-pixel-font/。",
+    "// Copyright (c) 2022, TakWolf。SIL Open Font License 1.1，全文和它带的上游许可证在 vibeplay/fonts/fusion-pixel-font/。",
     "use qapp::full::{Font, Glyph};",
     "",
     "/// 自带的点阵字：12 像素高，ASCII 和 GB2312 的全部字。",
@@ -80,6 +80,6 @@ for ch in sorted(glyphs):
     dw, rows = glyphs[ch]
     lines.append(f"    Glyph {{ ch: '{lit(ch)}', w: {dw}, rows: [{', '.join(f'0x{r:04x}' for r in rows)}] }},")
 lines.append("] };")
-out = pathlib.Path(__file__).resolve().parent.parent / "vibegame" / "src" / "font.rs"
+out = pathlib.Path(__file__).resolve().parent.parent / "vibeplay" / "src" / "font.rs"
 out.write_text("\n".join(lines) + "\n", encoding="utf-8")
 print(f"{out}：{len(glyphs)} 个字")

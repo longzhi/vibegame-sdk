@@ -1,6 +1,6 @@
 // 由 tools/make-font.py 生成，不要手改。
 // 字形来自缝合像素字体 12px 等宽（fusion-pixel-12px-monospaced-zh_hans.bdf），https://github.com/TakWolf/fusion-pixel-font
-// Copyright (c) 2022, TakWolf。SIL Open Font License 1.1，全文和它带的上游许可证在 vibegame/fonts/fusion-pixel-font/。
+// Copyright (c) 2022, TakWolf。SIL Open Font License 1.1，全文和它带的上游许可证在 vibeplay/fonts/fusion-pixel-font/。
 use qapp::full::{Font, Glyph};
 
 /// 自带的点阵字：12 像素高，ASCII 和 GB2312 的全部字。

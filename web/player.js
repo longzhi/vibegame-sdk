@@ -1,12 +1,12 @@
-// VibeGame 的网页版宿主：在浏览器里跑一个游戏的 .wasm。
+// VibePlay 的网页版宿主：在浏览器里跑一个游戏的 .wasm。
 // 游戏只用 13 个导入函数（qingos-sdk 的 docs/ABI.md「整屏 app 用到的」）。这里一样一样补上：
 // 画面画到 canvas，键盘、手柄、屏上的按钮当键，合成器照 qfull 的 Synth 一行一行抄过来，存档放 localStorage。
-// 页面在 window.VG 里给：{ name, title, wasm（base64）, assets: { 名字: base64 } }。
+// 页面在 window.VP 里给：{ name, title, wasm（base64）, assets: { 名字: base64 } }。
 (() => {
   "use strict";
   const W = 240, H = 160, FPS = 60;
   const KEY = { up: 1, down: 2, left: 4, right: 8, a: 16, b: 32, x: 64, y: 128, l1: 256, r1: 512, start: 1024, select: 2048 };
-  // 和 vibegame run 的窗口一样的键位。
+  // 和 vibeplay run 的窗口一样的键位。
   const KEYBOARD = {
     ArrowUp: KEY.up, ArrowDown: KEY.down, ArrowLeft: KEY.left, ArrowRight: KEY.right,
     KeyX: KEY.a, KeyZ: KEY.b, KeyS: KEY.x, KeyA: KEY.y, KeyQ: KEY.l1, KeyW: KEY.r1,
@@ -79,18 +79,18 @@
   }
 
   // ---- 语言：地址里的 ?lang=zh / ?lang=en，没写就看浏览器。游戏用 lang() 问 ----
-  const vg = window.VG;
+  const vp = window.VP;
   const TEXT = {
     en: {
       sound: "Press any key or tap the screen to turn on sound",
       keys: "Arrows move · X = A · Z = B · S = X · A = Y · Q = L1 · W = R1 · Enter = Start · Right Shift = Select · Gamepads work too",
-      made: 'Made with <a href="https://github.com/second-state/vibegame-sdk">VibeGame</a>',
+      made: 'Made with <a href="https://github.com/second-state/vibeplay-sdk">VibePlay</a>',
       other: "中文", error: "The game stopped with an error. See the browser console.",
     },
     zh: {
       sound: "按任意键或点一下画面开声音",
       keys: "方向键走 · X = A · Z = B · S = X · A = Y · Q = L1 · W = R1 · 回车 = Start · 右 Shift = Select · 也认手柄",
-      made: '用 <a href="https://github.com/second-state/vibegame-sdk">VibeGame</a> 做的',
+      made: '用 <a href="https://github.com/second-state/vibeplay-sdk">VibePlay</a> 做的',
       other: "English", error: "游戏出错了，看浏览器的控制台。",
     },
   };
@@ -101,7 +101,7 @@
     lang = l === "zh" ? "zh" : "en";
     const t = TEXT[lang];
     document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
-    const title = typeof vg.title === "string" ? vg.title : vg.title[lang];
+    const title = typeof vp.title === "string" ? vp.title : vp.title[lang];
     document.title = title;
     const h1 = document.querySelector("h1"); if (h1) h1.textContent = title;
     for (const el of document.querySelectorAll("[data-t]")) {
@@ -171,7 +171,7 @@
   }
 
   // ---- 系统给游戏的函数 ----
-  const store = (k) => `vibegame:${vg.name}:${k}`;
+  const store = (k) => `vibeplay:${vp.name}:${k}`;
   const bytes = (p, n) => new Uint8Array(mem.buffer, p, n).slice();
   const text = (p, n) => new TextDecoder().decode(bytes(p, n));
   const okName = (k) => k.length > 0 && !k.includes("/") && !k.includes("..") && !k.startsWith(".");
@@ -194,7 +194,7 @@
     buttons() { const b = (held | touch | tapped | padBits()) & 0xfff; tapped = 0; return b; },
     tone: (ch, hz, ms, vol) => (ch <= 3 && synth.tone(ch, hz >>> 0, ms >>> 0, vol >>> 0) ? 0 : -1),
     tone_wav: (p, n) => (synth.wav(bytes(p, n)) ? 0 : -1),
-    log: (p, n) => console.log(`[${vg.name}]`, text(p, n)),
+    log: (p, n) => console.log(`[${vp.name}]`, text(p, n)),
     data_read(kp, kn) { const k = text(kp, kn); if (!okName(k)) return 0n; const v = tryLS(() => localStorage.getItem(store(k)), null); return v === null ? 0n : give(b64(v)); },
     data_write(kp, kn, vp, vn) { const k = text(kp, kn); if (!okName(k)) return 1; return tryLS(() => (localStorage.setItem(store(k), toB64(bytes(vp, vn))), 0), 1); },
     data_delete(kp, kn) { const k = text(kp, kn); if (!okName(k)) return 1; tryLS(() => localStorage.removeItem(store(k))); return 0; },
@@ -202,7 +202,7 @@
       const pre = store(""), keys = tryLS(() => Object.keys(localStorage), []).filter((k) => k.startsWith(pre)).map((k) => k.slice(pre.length)).sort();
       return give(new TextEncoder().encode(JSON.stringify(keys)));
     },
-    asset_read(p, n) { const k = text(p, n); const v = vg.assets[k]; return v === undefined ? 0n : give(b64(v)); },
+    asset_read(p, n) { const k = text(p, n); const v = vp.assets[k]; return v === undefined ? 0n : give(b64(v)); },
     now: () => BigInt(Math.floor(Date.now() / 1000)),
     tz_offset: () => -new Date().getTimezoneOffset() * 60,
     lang: () => (lang === "zh" ? 1 : 0),
@@ -212,9 +212,9 @@
 
   async function main() {
     synth = new Synth(48000);
-    const module = await WebAssembly.compile(b64(vg.wasm));
+    const module = await WebAssembly.compile(b64(vp.wasm));
     const imports = { qing: {} };
-    // 整屏 app 用不到的导入函数：装得上，调了就出错（和 vibegame run 一样）。
+    // 整屏 app 用不到的导入函数：装得上，调了就出错（和 vibeplay run 一样）。
     for (const i of WebAssembly.Module.imports(module)) {
       if (i.kind !== "function") continue;
       imports[i.module] = imports[i.module] || {};

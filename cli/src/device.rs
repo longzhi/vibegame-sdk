@@ -2,12 +2,12 @@
 //!
 //! ```text
 //! GET  /api/apps/push     头 x-qing-code: <口令>   → 200 {"device": 名字, "apps": [名字…]}
-//! POST /api/apps/push     头 x-qing-code，身子是 .vg 包
+//! POST /api/apps/push     头 x-qing-code，身子是 .vp 包
 //!                  → 200 {"name": 名字, "state": "updated" | "installed" | "declined" | "timeout"}
 //! ```
 //!
 //! 同名的游戏直接换掉（存档留着）再打开。新游戏掌机上问一次「装不装」，问的时候这个请求等着。
-//! 口令存在 ~/.config/vibegame/device.json：只在这台开发机上，不进仓库。
+//! 口令存在 ~/.config/vibeplay/device.json：只在这台开发机上，不进仓库。
 
 use crate::pack;
 use anyhow::{bail, Context, Result};
@@ -23,7 +23,7 @@ pub struct Device {
 
 fn file() -> Option<PathBuf> {
     let base = std::env::var_os("XDG_CONFIG_HOME").map(PathBuf::from).or_else(|| std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".config")))?;
-    Some(base.join("vibegame/device.json"))
+    Some(base.join("vibeplay/device.json"))
 }
 
 /// 配过的掌机。
@@ -55,7 +55,7 @@ fn hello(d: &Device) -> Result<(u16, serde_json::Value)> {
 /// 状态码说成人话。
 fn explain(status: u16, host: &str) -> anyhow::Error {
     match status {
-        401 => anyhow::anyhow!("口令不对：看掌机屏幕上的口令（设置 → 系统），再 vibegame pair {host}"),
+        401 => anyhow::anyhow!("口令不对：看掌机屏幕上的口令（设置 → 系统），再 vibeplay pair {host}"),
         404 => anyhow::anyhow!("掌机没开开发者模式：在掌机的设置 → 系统里打开，重启后再试"),
         413 => anyhow::anyhow!("包太大了，掌机不收"),
         s => anyhow::anyhow!("掌机回了 {s}"),
@@ -87,7 +87,7 @@ pub fn pair(host: &str, code: Option<&str>) -> Result<()> {
     std::fs::write(&f, serde_json::to_vec_pretty(&d)?)?;
     let games: Vec<&str> = body["apps"].as_array().into_iter().flatten().filter_map(|v| v.as_str()).collect();
     println!("配好了：{}（{}）。上面有 {} 个游戏{}", body["device"].as_str().unwrap_or("掌机"), d.host, games.len(), if games.is_empty() { String::new() } else { format!("：{}", games.join("、")) });
-    println!("vibegame push 推当前目录的游戏。");
+    println!("vibeplay push 推当前目录的游戏。");
     Ok(())
 }
 
@@ -99,7 +99,7 @@ fn push_once(dir: &Path, d: &Device) -> Result<()> {
     let mut r = agent(90)
         .post(format!("{}/api/apps/push", base(&d.host)))
         .header("x-qing-code", &d.code)
-        .header("content-type", "application/x-vibegame")
+        .header("content-type", "application/x-vibeplay")
         .send(&bytes[..])
         .with_context(|| format!("连不上 {}", d.host))?;
     let status = r.status().as_u16();
@@ -138,7 +138,7 @@ fn newest(dir: &Path) -> SystemTime {
 }
 
 pub fn push(dir: &Path, host: Option<&str>, watch: bool) -> Result<()> {
-    let mut d = saved().context("还没配对：vibegame pair <掌机的地址>")?;
+    let mut d = saved().context("还没配对：vibeplay pair <掌机的地址>")?;
     if let Some(h) = host {
         d.host = h.to_string();
     }
@@ -152,7 +152,7 @@ pub fn push(dir: &Path, host: Option<&str>, watch: bool) -> Result<()> {
         if t > seen {
             seen = t;
             if let Err(e) = push_once(dir, &d) {
-                eprintln!("vibegame：{e:#}");
+                eprintln!("vibeplay：{e:#}");
             }
         }
         std::thread::sleep(Duration::from_millis(500));

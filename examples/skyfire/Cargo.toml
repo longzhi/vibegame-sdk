@@ -9,4 +9,4 @@ description = "游戏《烈空战机》：竖版飞机射击，四关"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-vibegame = { path = "../../vibegame" }
+vibeplay = { path = "../../vibeplay" }

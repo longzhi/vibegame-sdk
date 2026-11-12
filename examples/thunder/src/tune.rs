@@ -2,7 +2,7 @@
 //! 一小节 8 格。打仗的曲子多用小调，低音一直在跑。
 
 use crate::art::Theme;
-use vibegame::full::{Channel, Song, Track};
+use vibeplay::full::{Channel, Song, Track};
 
 fn tr(ch: Channel, vol: u32, s: &str) -> Track {
     Track::parse(ch, vol, s).expect("曲子写错了")

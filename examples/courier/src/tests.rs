@@ -400,7 +400,7 @@ fn lifts_carry_the_hero() {
 
 #[test]
 fn title_follows_the_system_language() {
-    use vibegame::full::{native::set_lang, Lang};
+    use vibeplay::full::{native::set_lang, Lang};
     let mut g = Game::default();
     g.draw();
     let en = g.frame.pixels.clone();

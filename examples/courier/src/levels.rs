@@ -11,7 +11,7 @@
 //! 主角站在第 7 行（地面是第 8、9 行）。小个子跳得到 4 格高，跑起来 5 格。
 
 use crate::art::Theme;
-use vibegame::full::lang;
+use vibeplay::full::lang;
 
 pub struct Level {
     pub name: &'static str,
