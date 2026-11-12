@@ -22,7 +22,7 @@ use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 /// 集市的地址。`--market` 和环境变量 `VIBEPLAY_MARKET` 能换（本机试的时候指 wrangler dev）。
-pub const DEFAULT: &str = "https://market.vibeplay.korekore.ai";
+pub const DEFAULT: &str = "https://api.vibeplay.korekore.ai";
 /// 不开窗口跑几帧不出错才发（ADR 0037 第 5 条）。
 const FRAMES: u64 = 600;
 /// 在哪几帧截图，跟着包一起传。
