@@ -3,7 +3,7 @@
 
 use crate::script::Script;
 use anyhow::{Context, Result};
-use qfull::full::{Frame, Full, Tone, H, W};
+use qfull::full::{Frame, Full, Tone};
 use std::path::Path;
 use std::sync::Arc;
 
@@ -14,14 +14,16 @@ pub struct Player {
     inner: qfull::Player,
     /// 跑过几帧。
     pub frame_no: u64,
-    /// 最新的画面：这一帧没交就还是上一帧的。
+    /// 最新的画面：这一帧没交就还是上一帧的。清单写了 frame = "640x480" 的是 640×480 的真彩画面。
     pub last: Frame,
 }
 
 impl Player {
     /// `data` 是游戏存档的目录（`data_write`）；None 时存不了。
     pub fn load(module: &Path, data: Option<std::path::PathBuf>, memory_mb: u64) -> Result<Player> {
-        Ok(Player { inner: qfull::Player::load(module, data, memory_mb)?, frame_no: 0, last: Frame::default() })
+        let inner = qfull::Player::load(module, data, memory_mb)?;
+        let last = inner.full().blank();
+        Ok(Player { inner, frame_no: 0, last })
     }
 
     pub fn full(&self) -> &Arc<Full> {
@@ -56,16 +58,17 @@ impl Player {
     /// 最新的一帧存成 PNG，放大 `scale` 倍（最近邻）。`crop` 是只要的一块：x、y、宽、高，原大小的像素。
     pub fn shot(&self, out: &Path, scale: usize, crop: Option<(usize, usize, usize, usize)>) -> Result<()> {
         let k = scale.max(1);
-        let (x0, y0, cw, ch) = crop.unwrap_or((0, 0, W, H));
-        if cw == 0 || ch == 0 || x0 + cw > W || y0 + ch > H {
-            anyhow::bail!("--crop 出了画面：画面是 {W}×{H}");
+        let (w, h) = self.last.size();
+        let (x0, y0, cw, ch) = crop.unwrap_or((0, 0, w, h));
+        if cw == 0 || ch == 0 || x0 + cw > w || y0 + ch > h {
+            anyhow::bail!("--crop 出了画面：画面是 {w}×{h}");
         }
         let file = std::fs::File::create(out).with_context(|| format!("写不了 {}", out.display()))?;
         let full = self.last.rgb_scaled(1);
         let mut rgb = Vec::with_capacity(cw * ch * 3 * k * k);
         for y in 0..ch * k {
             for x in 0..cw * k {
-                let i = ((y0 + y / k) * W + x0 + x / k) * 3;
+                let i = ((y0 + y / k) * w + x0 + x / k) * 3;
                 rgb.extend_from_slice(&full[i..i + 3]);
             }
         }
