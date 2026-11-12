@@ -26,6 +26,7 @@ const USAGE: &str = "vibeplay：做掌机游戏（240×160、256 色、每秒 60
                                         跑到第 N 帧，存成 PNG（默认放大 3 倍；真彩的不放大，640×480）。几个帧号就存几张：a-N.png
                                         看小精灵的细节：--crop 框住它，--scale 6 放大
   vibeplay web [游戏] [--out a.html]     出网页版：一个 HTML 文件，浏览器里就能玩，能发给别人
+  vibeplay web --remote [--out a.html]  出不带游戏的网页版：打开时按 ?pkg=<地址> 拉一个 .vp 再玩（集市的网页用）
   vibeplay pack [游戏] [--out 目录]      打包成 <名字>.vp：拷进 TF 卡的「游戏」目录，或者 push
   vibeplay pair <掌机的地址>             和掌机配对（掌机要开开发者模式，屏幕上有口令）
   vibeplay push [游戏] [--watch]         打包、推到配好的掌机上、打开。--watch：一改就再推
@@ -52,7 +53,7 @@ struct Args {
 }
 
 /// 不带值的开关。
-const SWITCHES: [&str; 2] = ["headless", "watch"];
+const SWITCHES: [&str; 3] = ["headless", "watch", "remote"];
 
 impl Args {
     fn parse(it: impl Iterator<Item = String>) -> Result<Args> {
@@ -141,6 +142,14 @@ fn run(mut args: Vec<String>) -> Result<()> {
         "shot" => {
             a.only(&["frames", "input", "data", "out", "scale", "crop", "lang"])?;
             shot(&a)
+        }
+        "web" if a.has("remote") => {
+            a.only(&["remote", "out"])?;
+            let html = web::remote_page();
+            let out = a.path("out").unwrap_or_else(|| PathBuf::from("dist/play.html"));
+            write(&out, html.as_bytes())?;
+            println!("{}（打开时加 ?pkg=<包的地址>）", out.display());
+            Ok(())
         }
         "web" => {
             a.only(&["out"])?;
