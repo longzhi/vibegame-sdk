@@ -134,3 +134,15 @@ https://github.com/second-state/vibeplay-sdk/tree/main/examples 有四款做完�
 - `vibeplay pair <地址>` 输口令，配一次就行。`vibeplay push` 打包、推过去、直接打开。`--watch` 一改就再推。
 - 同一个游戏再推，直接换掉，存档留着。新游戏掌机上会问一次装不装，要人按 A。
 - 不用 Wi‑Fi：`vibeplay pack` 出的 `.vp` 拷进 TF 卡的「游戏」目录，插上掌机开机就装。
+
+## 发到集市
+
+集市是大家发游戏、装别人的游戏的地方。发了马上上架，别人的掌机打开集市就能装。
+
+- 第一次要人做两件事，agent 替不了：`vibeplay login`（在浏览器里输码登录 GitHub），第一次 `publish` 时在终端里答应条款（输 yes）。
+- 清单要有 `description`（集市上的一两句介绍，可以加 `description_zh`）和 `cover`。名字不能和预装的游戏一样。
+- 清单写 `langs = ["en"]` 或 `["en", "zh"]`：游戏里的字用哪几种语言。只能是 en、zh。
+- `vibeplay publish` 先在这台电脑上查清单、不开窗口跑 600 帧、截三张图，再打包上传。出错就照它说的改。
+- 每发一次，`version` 要往上加（0.1.0 → 0.1.1）。发错了不能退回，发一个更大的版本。
+- `vibeplay status` 看上没上架、装了几次、最近没过的原因。`vibeplay unpublish <名字>` 下架，已经装了的掌机照常用。
+- 集市不收：要 mcu 的、带人格的、要网却没写 `hosts` 的。一个账号一天最多发 20 次。

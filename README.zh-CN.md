@@ -74,6 +74,8 @@ vibeplay run --headless --frames 300 --input s.txt   # 印出每一个音调
 - **Wi‑Fi**：掌机打开开发者模式。`vibeplay pair <地址>` 输屏幕上的口令，配一次。
   以后 `vibeplay push` 打包、推过去、直接打开。同一个游戏再推直接换，存档留着。新游戏掌机上问一次，要人按 A。
 - **TF 卡**：`vibeplay pack` 出的 `.vp` 拷进卡上的 `games` 目录（叫「游戏」也行）。插上掌机开机就安装。
+- **集市**：`vibeplay login` 登录一次（在浏览器里登 GitHub）。以后 `vibeplay publish` 查游戏、不开窗口跑 600 帧、截三张图、上传，马上上架，别人的掌机就能装。
+  每发一次 `version` 要往上加。`vibeplay status` 看你的游戏，`vibeplay unpublish <名字>` 下架。
 - **掌机连 Wi-Fi**：在设置里用十字键输口令；或者在 TF 卡根目录放一个 `wifi.toml`，插上卡开机就连：
 
   ```toml
@@ -82,7 +84,8 @@ vibeplay run --headless --frames 300 --input s.txt   # 印出每一个音调
   ```
 
 `.vp` 是一个 tar.gz：`app.toml`、`bin/<名字>.wasm`、给掌机编好的 `bin/<名字>.cwasm`、`assets/`。
-掌机上不带编译器，所以 `pack` 在开发机上编好。掌机的系统升级换了运行时，旧包要重新打。
+推送和 TF 卡的包，`pack` 在开发机上编好 `.cwasm`。掌机的系统升级换了运行时，旧包要重新打。
+集市的包不带 `.cwasm`，掌机从 `.wasm` 自己编。
 
 ## 建在什么上
 

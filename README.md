@@ -77,6 +77,8 @@ The screen, sound and button code is the same code that runs on the handheld. Wh
 - **Wi-Fi**: turn on developer mode on the handheld. Run `vibeplay pair <address>` and type the code from the screen. You pair once.
   After that, `vibeplay push` packs the game, sends it and opens it. Push the same game again and the handheld swaps it in and keeps the saves. For a new game, the handheld asks once, and a person must press A.
 - **TF card**: copy the `.vp` file from `vibeplay pack` into the `games` folder on the card (a folder named `游戏` also works). Put the card in and turn the handheld on to install it.
+- **Market**: run `vibeplay login` once (you sign in with GitHub in a browser). Then `vibeplay publish` checks the game, runs it for 600 frames without a window, takes three screenshots and uploads it. It is in the Market at once, and other handhelds can install it.
+  Each publish needs a higher `version`. `vibeplay status` shows your games. `vibeplay unpublish <name>` takes a game out of the Market.
 - **Wi-Fi on the handheld**: type the password with the D-pad in Settings, or put a `wifi.toml` file at the top of the TF card and turn the handheld on:
 
   ```toml
@@ -85,7 +87,8 @@ The screen, sound and button code is the same code that runs on the handheld. Wh
   ```
 
 A `.vp` file is a tar.gz with `app.toml`, `bin/<name>.wasm`, `bin/<name>.cwasm` (built for the handheld) and `assets/`.
-The handheld has no compiler, so `pack` builds on your computer. When a system update changes the handheld runtime, pack old games again.
+For push and the TF card, `pack` builds the `.cwasm` on your computer. When a system update changes the handheld runtime, pack old games again.
+A Market package has no `.cwasm`: the handheld builds it from the `.wasm`.
 
 ## What it is built on
 
