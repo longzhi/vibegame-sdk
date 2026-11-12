@@ -13,8 +13,8 @@ mod tests;
 use art::*;
 use stages::{Kind, Wave, STAGES};
 use std::sync::Mutex;
-use vibegame::full::{key, lang, tone_wav, Camera, Channel, Frame, Keys, Music, Sprite, TileMap, H, W};
-use vibegame::FONT;
+use vibeplay::full::{key, lang, tone_wav, Camera, Channel, Frame, Keys, Music, Sprite, TileMap, H, W};
+use vibeplay::FONT;
 
 /// 1 像素是 16 个单位。
 const S: i32 = 16;
@@ -248,7 +248,7 @@ impl Default for Game {
 
 /// 存档：「打开了几关,最高分」。
 fn load() -> (usize, u32) {
-    let s = vibegame::load(SAVE).and_then(|b| String::from_utf8(b).ok()).unwrap_or_default();
+    let s = vibeplay::load(SAVE).and_then(|b| String::from_utf8(b).ok()).unwrap_or_default();
     let mut it = s.split(',');
     let u = it.next().and_then(|v| v.parse().ok()).unwrap_or(1usize).clamp(1, 4);
     let hi = it.next().and_then(|v| v.parse().ok()).unwrap_or(0);
@@ -328,7 +328,7 @@ impl Game {
     }
 
     fn save(&self) {
-        vibegame::save(SAVE, format!("{},{}", self.unlocked, self.hi).as_bytes());
+        vibeplay::save(SAVE, format!("{},{}", self.unlocked, self.hi).as_bytes());
     }
 
     /// 开一局：从第 `stage` 关打起。
@@ -1453,7 +1453,7 @@ fn draw_boss(f: &mut Frame, b: &Boss, stage: usize) {
 
 static GAME: Mutex<Option<Game>> = Mutex::new(None);
 
-vibegame::main!(|app| {
+vibeplay::main!(|app| {
     app.every(|| {
         let mut g = GAME.lock().unwrap();
         let g = g.get_or_insert_with(Game::default);

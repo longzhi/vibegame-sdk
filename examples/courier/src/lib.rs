@@ -14,9 +14,9 @@ mod levels;
 mod tune;
 
 use art::*;
-use vibegame::FONT;
+use vibeplay::FONT;
 use levels::LEVELS;
-use vibegame::full::{key, lang, tone_wav, Channel, Frame, Keys, Music, Sprite, H, W};
+use vibeplay::full::{key, lang, tone_wav, Channel, Frame, Keys, Music, Sprite, H, W};
 use std::sync::Mutex;
 
 /// 一个像素是 256 份。
@@ -493,7 +493,7 @@ impl Default for Game {
             jingle: Vec::new(),
             boom: boom_wav(4, 0x2468_1357),
         };
-        if let Some(b) = vibegame::load(SAVE) {
+        if let Some(b) = vibeplay::load(SAVE) {
             let s = String::from_utf8_lossy(&b);
             let mut it = s.split(',');
             if let Some(u) = it.next().and_then(|v| v.trim().parse::<usize>().ok()) {
@@ -511,7 +511,7 @@ impl Default for Game {
 
 impl Game {
     fn save(&self) {
-        let _ = vibegame::save(SAVE, format!("{},{}", self.unlocked, self.hi).as_bytes());
+        let _ = vibeplay::save(SAVE, format!("{},{}", self.unlocked, self.hi).as_bytes());
     }
 
     // ---------- 声音 ----------
@@ -2240,7 +2240,7 @@ fn flip_v(s: &Sprite) -> Sprite {
 
 static STATE: Mutex<Option<Game>> = Mutex::new(None);
 
-vibegame::main!(|app| {
+vibeplay::main!(|app| {
     app.every(|| {
         let mut s = STATE.lock().unwrap();
         let g = s.get_or_insert_with(Game::default);

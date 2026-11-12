@@ -2,7 +2,7 @@
 //! 一小节 8 格（屋顶那首 12 格，三拍子的感觉）。时间不多了，一格少一帧，听起来快一点。
 
 use crate::art::Theme;
-use vibegame::full::{Channel, Song, Track};
+use vibeplay::full::{Channel, Song, Track};
 
 fn tr(ch: Channel, vol: u32, s: &str) -> Track {
     Track::parse(ch, vol, s).expect("曲子写错了")

@@ -4,7 +4,7 @@
 //! 卷到顶就停，大怪出来。
 
 use crate::art::*;
-use vibegame::full::{lang, TileMap};
+use vibeplay::full::{lang, TileMap};
 
 /// 地图多少行（一行 16 像素）。卷完要 (行数 × 16 − 160) × 2 帧，约 85 秒。
 pub const ROWS: i32 = 170;

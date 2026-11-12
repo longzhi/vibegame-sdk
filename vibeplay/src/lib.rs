@@ -1,10 +1,10 @@
-//! VibeGame 写游戏的库。游戏是 QingOS 上的一个整屏 app：240×160、256 色、每秒 60 帧。
+//! VibePlay 写游戏的库。游戏是 QingOS 上的一个整屏 app：240×160、256 色、每秒 60 帧。
 //!
 //! ```ignore
-//! use vibegame::full::{Frame, Keys};
+//! use vibeplay::full::{Frame, Keys};
 //! use std::sync::Mutex;
 //! static G: Mutex<Option<(Frame, Keys)>> = Mutex::new(None);
-//! vibegame::main!(|app| {
+//! vibeplay::main!(|app| {
 //!     app.every(|| {
 //!         let mut g = G.lock().unwrap();
 //!         let (f, k) = g.get_or_insert_with(Default::default);
@@ -42,7 +42,7 @@ pub fn erase(name: &str) -> bool {
     qapp::host::data_delete(name).is_ok()
 }
 
-/// 记一行日志：`vibegame run` 印在终端里，掌机上进系统日志。
+/// 记一行日志：`vibeplay run` 印在终端里，掌机上进系统日志。
 pub fn log(s: &str) {
     qapp::host::log(s)
 }

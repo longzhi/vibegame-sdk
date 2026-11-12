@@ -284,7 +284,7 @@ fn twenty_enemies_with_three_carriers() {
 
 #[test]
 fn title_follows_the_system_language() {
-    use vibegame::full::native::set_lang;
+    use vibeplay::full::native::set_lang;
     let mut g = Game::default();
     g.draw();
     let en = g.frame.pixels.clone();

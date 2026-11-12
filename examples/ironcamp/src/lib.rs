@@ -10,9 +10,9 @@
 
 mod levels;
 
-use vibegame::FONT;
+use vibeplay::FONT;
 use levels::{LEVELS, MIXES};
-use vibegame::full::{key, lang, tone, tone_wav, Channel, Frame, Keys, Lang, Music, Song, Sprite, Track, W};
+use vibeplay::full::{key, lang, tone, tone_wav, Channel, Frame, Keys, Lang, Music, Song, Sprite, Track, W};
 use std::sync::Mutex;
 
 /// 场地多大（像素）。
@@ -952,7 +952,7 @@ impl Default for Game {
             boom_small: boom_wav(3, 0x1357_9bdf),
             boom_big: boom_wav(7, 0x2468_9ace),
         };
-        if let Some(b) = vibegame::load(SAVE) {
+        if let Some(b) = vibeplay::load(SAVE) {
             let s = String::from_utf8_lossy(&b);
             let mut it = s.split(',');
             if let Some(u) = it.next().and_then(|v| v.trim().parse::<usize>().ok()) {
@@ -970,7 +970,7 @@ impl Default for Game {
 impl Game {
     fn save(&self) {
         // 存不了（开发机上没给目录）也接着玩，只是下次从头。
-        let _ = vibegame::save(SAVE, format!("{},{}", self.unlocked, self.hi).as_bytes());
+        let _ = vibeplay::save(SAVE, format!("{},{}", self.unlocked, self.hi).as_bytes());
     }
 
     fn sfx(&mut self, ch: Channel, hz: u32, ms: u32, vol: u32) {
@@ -2033,7 +2033,7 @@ fn hi_line(hi: u32) -> String {
 
 static STATE: Mutex<Option<Game>> = Mutex::new(None);
 
-vibegame::main!(|app| {
+vibeplay::main!(|app| {
     app.every(|| {
         let mut s = STATE.lock().unwrap();
         let g = s.get_or_insert_with(Game::default);

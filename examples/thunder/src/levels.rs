@@ -11,7 +11,7 @@
 //! 主角跳得到 2 格高、2 格远。
 
 use crate::art::Theme;
-use vibegame::full::lang;
+use vibeplay::full::lang;
 
 pub struct Level {
     pub name: &'static str,

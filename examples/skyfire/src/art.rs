@@ -1,6 +1,6 @@
 //! 调色板、精灵、地图块。精灵用字符画，地图块用代码按格子画（一格 16 像素）。
 
-use vibegame::full::Sprite;
+use vibeplay::full::Sprite;
 
 pub const SKY: u8 = 0;
 pub const INK: u8 = 1;

@@ -9,4 +9,4 @@ description = "游戏《铁壳守营》：俯视的坦克战，守营地，二�
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-vibegame = { path = "../../vibegame" }
+vibeplay = { path = "../../vibeplay" }

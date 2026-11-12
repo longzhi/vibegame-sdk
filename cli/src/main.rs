@@ -1,4 +1,4 @@
-//! vibegame：做掌机游戏的命令行。人和 agent 用的是同一套命令，`vibegame help` 看全部。
+//! vibeplay：做掌机游戏的命令行。人和 agent 用的是同一套命令，`vibeplay help` 看全部。
 
 mod device;
 mod game;
@@ -14,24 +14,24 @@ use player::Player;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
-const USAGE: &str = "vibegame：做掌机游戏（240×160、256 色、每秒 60 帧）
+const USAGE: &str = "vibeplay：做掌机游戏（240×160、256 色、每秒 60 帧）
 
-  vibegame doctor                       查开发机缺什么（Rust、wasm32 目标、掌机连没连上）
-  vibegame new <目录> [--title 名字]     从模板起一个新游戏
-  vibegame run [游戏] [--lang zh]        开窗口玩，有声音。存档放在 <游戏>/save/
-  vibegame run [游戏] --headless --frames N [--input 脚本] [--data 目录] [--lang zh]
+  vibeplay doctor                       查开发机缺什么（Rust、wasm32 目标、掌机连没连上）
+  vibeplay new <目录> [--title 名字]     从模板起一个新游戏
+  vibeplay run [游戏] [--lang zh]        开窗口玩，有声音。存档放在 <游戏>/save/
+  vibeplay run [游戏] --headless --frames N [--input 脚本] [--data 目录] [--lang zh]
                                         不开窗口，按脚本按键，印出每一个音调和录音
-  vibegame shot [游戏] --frames N[,N…] [--input 脚本] [--data 目录] [--out a.png] [--scale K] [--crop x,y,w,h] [--lang zh]
+  vibeplay shot [游戏] --frames N[,N…] [--input 脚本] [--data 目录] [--out a.png] [--scale K] [--crop x,y,w,h] [--lang zh]
                                         跑到第 N 帧，存成 PNG（默认放大 3 倍；真彩的不放大，640×480）。几个帧号就存几张：a-N.png
                                         看小精灵的细节：--crop 框住它，--scale 6 放大
-  vibegame web [游戏] [--out a.html]     出网页版：一个 HTML 文件，浏览器里就能玩，能发给别人
-  vibegame pack [游戏] [--out 目录]      打包成 <名字>.vg：拷进 TF 卡的「游戏」目录，或者 push
-  vibegame pair <掌机的地址>             和掌机配对（掌机要开开发者模式，屏幕上有口令）
-  vibegame push [游戏] [--watch]         打包、推到配好的掌机上、打开。--watch：一改就再推
-  vibegame skill [install [--to 目录]]   印出给 agent 的说明；install 装进 Claude Code 和 Codex
+  vibeplay web [游戏] [--out a.html]     出网页版：一个 HTML 文件，浏览器里就能玩，能发给别人
+  vibeplay pack [游戏] [--out 目录]      打包成 <名字>.vp：拷进 TF 卡的「游戏」目录，或者 push
+  vibeplay pair <掌机的地址>             和掌机配对（掌机要开开发者模式，屏幕上有口令）
+  vibeplay push [游戏] [--watch]         打包、推到配好的掌机上、打开。--watch：一改就再推
+  vibeplay skill [install [--to 目录]]   印出给 agent 的说明；install 装进 Claude Code 和 Codex
 
 --lang 是游戏看到的系统语言：en（默认）或 zh。掌机默认英文，人在设置里换。
---data 是存档放在哪个目录。--headless 和 shot 不给就存不了：vibegame::save 回 false，读也读不到。
+--data 是存档放在哪个目录。--headless 和 shot 不给就存不了：vibeplay::save 回 false，读也读不到。
 [游戏] 是游戏的目录（有 app.toml），不写是当前目录。run、shot 也能直接给一个 .wasm 文件。
 清单写了 frame = \"640x480\" 的是真彩 app（640×480、RGB565）：run 放在 720×480 的窗口中间，shot 存 640×480。网页版不认。
 按键脚本一行一条：「帧 键…」或「起-止 键…」，帧从 0 数，# 后面是注释。
@@ -92,11 +92,11 @@ fn main() {
         return;
     }
     if matches!(args[0].as_str(), "-V" | "--version" | "version") {
-        println!("vibegame {}", env!("CARGO_PKG_VERSION"));
+        println!("vibeplay {}", env!("CARGO_PKG_VERSION"));
         return;
     }
     if let Err(e) = run(args) {
-        eprintln!("vibegame：{e:#}");
+        eprintln!("vibeplay：{e:#}");
         std::process::exit(1);
     }
 }
@@ -108,7 +108,7 @@ fn run(mut args: Vec<String>) -> Result<()> {
         "doctor" => doctor(),
         "new" => {
             a.only(&["title", "sdk"])?;
-            let dir = a.pos.first().context("要一个目录：vibegame new mygame")?;
+            let dir = a.pos.first().context("要一个目录：vibeplay new mygame")?;
             new::create(Path::new(dir), a.get("title"), a.path("sdk").as_deref())
         }
         "run" if a.has("headless") => {
@@ -147,14 +147,14 @@ fn run(mut args: Vec<String>) -> Result<()> {
         "pack" => {
             a.only(&["out", "target"])?;
             let (bytes, g) = pack::pack(&a.game(0), a.get("target").unwrap_or(pack::DEVICE_TARGET))?;
-            let out = a.path("out").unwrap_or_else(|| PathBuf::from("dist")).join(format!("{}.vg", g.m.name));
+            let out = a.path("out").unwrap_or_else(|| PathBuf::from("dist")).join(format!("{}.vp", g.m.name));
             write(&out, &bytes)?;
             println!("{}（{} KB）", out.display(), bytes.len() / 1024);
             Ok(())
         }
         "pair" => {
             a.only(&["code"])?;
-            device::pair(a.pos.first().context("要掌机的地址：vibegame pair 192.168.1.23")?, a.get("code"))
+            device::pair(a.pos.first().context("要掌机的地址：vibeplay pair 192.168.1.23")?, a.get("code"))
         }
         "push" => {
             a.only(&["watch", "device"])?;
@@ -171,7 +171,7 @@ fn run(mut args: Vec<String>) -> Result<()> {
                 Some(x) => bail!("skill 后面只认 install，不认 {x}"),
             }
         }
-        c => bail!("不认识的命令 {c}。vibegame help 看全部命令"),
+        c => bail!("不认识的命令 {c}。vibeplay help 看全部命令"),
     }
 }
 
@@ -255,10 +255,10 @@ fn doctor() -> Result<()> {
     check(targets.lines().any(|l| l.trim() == "wasm32-unknown-unknown"), "wasm32 目标", "rustup target add wasm32-unknown-unknown");
     match device::saved() {
         Some(d) => check(device::reachable(&d), &format!("掌机 {}", d.host), "掌机开着吗？和开发机在一个 Wi‑Fi 里吗？开发者模式开了吗？"),
-        None => println!("  --  掌机：还没配对（要推到掌机上再 vibegame pair <地址>）"),
+        None => println!("  --  掌机：还没配对（要推到掌机上再 vibeplay pair <地址>）"),
     }
     if bad == 0 {
-        println!("都好了。vibegame new mygame 起一个游戏。");
+        println!("都好了。vibeplay new mygame 起一个游戏。");
     }
     Ok(())
 }

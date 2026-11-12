@@ -2,8 +2,8 @@
 //! 从这里改起：画面在 `draw`，规则在 `step`，颜色在 `PALETTE`。
 
 use std::sync::Mutex;
-use vibegame::full::{key, lang, Channel, Frame, Keys, Music, Song, Sprite, Track, H, W};
-use vibegame::FONT;
+use vibeplay::full::{key, lang, Channel, Frame, Keys, Music, Song, Sprite, Track, H, W};
+use vibeplay::FONT;
 
 // 调色板：格子编号起名字，画的时候只写名字。第 0 格是背景，精灵里的 0 是透明。
 const SKY: u8 = 0;
@@ -68,7 +68,7 @@ impl Default for Game {
         for (i, rgb) in PALETTE {
             frame.palette[i as usize] = rgb;
         }
-        let best = vibegame::load(SAVE).and_then(|b| String::from_utf8(b).ok()?.parse().ok()).unwrap_or(0);
+        let best = vibeplay::load(SAVE).and_then(|b| String::from_utf8(b).ok()?.parse().ok()).unwrap_or(0);
         Game {
             frame,
             keys: Keys::default(),
@@ -121,7 +121,7 @@ impl Game {
                     self.music.stop();
                     if self.score > self.best {
                         self.best = self.score;
-                        vibegame::save(SAVE, self.best.to_string().as_bytes());
+                        vibeplay::save(SAVE, self.best.to_string().as_bytes());
                     }
                 }
             }
@@ -162,7 +162,7 @@ impl Game {
 
 static GAME: Mutex<Option<Game>> = Mutex::new(None);
 
-vibegame::main!(|app| {
+vibeplay::main!(|app| {
     app.every(|| {
         let mut g = GAME.lock().unwrap();
         let g = g.get_or_insert_with(Game::default);
@@ -191,7 +191,7 @@ mod tests {
 
     #[test]
     fn title_follows_the_system_language() {
-        use vibegame::full::{native::set_lang, Lang};
+        use vibeplay::full::{native::set_lang, Lang};
         let mut g = Game::default();
         g.draw();
         let en = g.frame.pixels.clone();

@@ -109,9 +109,9 @@ pub fn build(dir: &Path) -> Result<PathBuf> {
         .arg(dir.join("Cargo.toml"))
         .stderr(std::process::Stdio::inherit())
         .output()
-        .context("起不来 cargo（vibegame doctor 看看装好没有）")?;
+        .context("起不来 cargo（vibeplay doctor 看看装好没有）")?;
     if !out.status.success() {
-        bail!("{} 编不过（错在上面）。缺 wasm32 目标就跑 vibegame doctor", dir.display());
+        bail!("{} 编不过（错在上面）。缺 wasm32 目标就跑 vibeplay doctor", dir.display());
     }
     let manifest = std::fs::canonicalize(dir.join("Cargo.toml"))?;
     let mut found = None;

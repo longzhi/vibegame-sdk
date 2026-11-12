@@ -6,7 +6,7 @@
 
     python3 tools/game-covers.py            # 画全部
     python3 tools/game-covers.py ironcamp   # 只画一款
-    python3 tools/game-covers.py blank      # 模板（vibegame new 带的）的封面
+    python3 tools/game-covers.py blank      # 模板（vibeplay new 带的）的封面
 
 封面上不写名字：家上封面底下有名字，跟着系统的语言换。
 """
@@ -622,7 +622,7 @@ def skyfire():
 
 
 def blank():
-    """模板的封面。不写字：vibegame new 起的游戏换了名字，封面也不会说错。"""
+    """模板的封面。不写字：vibeplay new 起的游戏换了名字，封面也不会说错。"""
     # 模板的两张精灵写在 hero()、star() 里，不是常量：照抄过来。
     pal = {"r": "#d83848", "s": "#f8b888", "i": "#0c0c14", "g": "#ffd040"}
     hero = ["..rrrr..", ".rrrrrr.", ".ssssss.", ".sisssi.", ".ssssss.", "..rrrr..", ".rr..rr.", ".i....i."]

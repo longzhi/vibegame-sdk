@@ -433,7 +433,7 @@ fn clearing_saves_progress_and_score_gives_lives() {
 
 #[test]
 fn title_follows_the_system_language() {
-    use vibegame::full::{native::set_lang, Lang};
+    use vibeplay::full::{native::set_lang, Lang};
     let mut g = Game::default();
     g.draw();
     let en = g.frame.pixels.clone();
