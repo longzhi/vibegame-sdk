@@ -57,6 +57,9 @@ frame.text_center(&FONT, 70, lang().pick("PRESS START", "按 START 开始"), WHI
 清单里 `title` 写英文名，`title_zh` 写中文名，掌机的家上按系统的语言显示。
 开发机上 `vibeplay run`、`shot` 加 `--lang zh` 看中文。网页版地址加 `?lang=zh`，没写就看浏览器的语言，页面下面也能换；嵌着它的网页用 `postMessage({ vgLang: "zh" })` 换。
 
+游戏不一定两种都要。只用一种语言的游戏，字直接写那一种，不用 `lang()`；名字写在 `title`，不写 `title_zh`。
+Skill 会在 agent 动手之前先问你要哪几种语言。
+
 ## agent 怎么自己验
 
 agent 看不到窗口，所以命令行能不开窗口跑：
