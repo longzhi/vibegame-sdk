@@ -6,6 +6,7 @@ mod market;
 mod new;
 mod pack;
 mod player;
+mod remix;
 mod script;
 mod source;
 mod web;
@@ -34,6 +35,7 @@ const USAGE: &str = "vibeplay：做掌机游戏（240×160、256 色、每秒 60
   vibeplay login                        登录集市（GitHub 账号，要人在浏览器里点）
   vibeplay publish [游戏]                查清单、不开窗口跑 600 帧、截三张图、打包、发到集市，过了马上上架
   vibeplay publish [游戏] --source       同时公开源码：只收 Cargo.toml、Cargo.lock、app.toml、src/、assets/，先列出来，第一次要你答应
+  vibeplay remix <名字> [目录]           改集市上公开了源码的游戏：下载最新那一版的源码，起一个新游戏（目录名是新名字，不写是 <名字>-remix），记下改自哪一版
   vibeplay status [名字]                 你在集市上的 app：每个版本上没上架、装了几次、最近没过的原因
   vibeplay unpublish <名字> [--version x.y.z]
                                         从集市下架。已经装了的掌机照常用
@@ -185,6 +187,11 @@ fn run(mut args: Vec<String>) -> Result<()> {
         "publish" => {
             a.only(&["market", "source"])?;
             market::publish(&a.game(0), &market::url(a.get("market")), a.has("source"))
+        }
+        "remix" => {
+            a.only(&["market"])?;
+            let name = a.pos.first().context("要一个集市上的游戏名：vibeplay remix skyfire my-skyfire")?;
+            remix::remix(name, a.pos.get(1).map(Path::new), &market::url(a.get("market")))
         }
         "status" => {
             a.only(&["market"])?;
