@@ -27,8 +27,9 @@ pub const DEFAULT: &str = "https://api.vibeplay.korekore.ai";
 const FRAMES: u64 = 600;
 /// 在哪几帧截图，跟着包一起传。
 const SHOTS: [u64; 3] = [60, 180, 420];
-/// 系统和预装 app 的名字：集市上不能用。服务端也查。
-const RESERVED: [&str; 14] = ["qing", "market", "settings", "agenda", "list", "family", "duck", "vibebuddy", "vibeplay", "courier", "ironcamp", "skyfire", "thunder", "full-block"];
+/// 系统的名字：集市上谁都不能用。服务端也查。
+/// 掌机预装的四款游戏（courier、ironcamp、skyfire、thunder）不在这里：只有官方账号能发，由服务端判断。
+const RESERVED: [&str; 10] = ["qing", "market", "settings", "agenda", "list", "family", "duck", "vibebuddy", "vibeplay", "full-block"];
 
 #[derive(Serialize, Deserialize, Default)]
 struct Saved {
@@ -133,7 +134,7 @@ fn check_manifest(g: &Game) -> Result<()> {
         bad.push(format!("version = \"{version}\"：要写成 x.y.z，每发一次往上加"));
     }
     if RESERVED.contains(&g.m.name.as_str()) {
-        bad.push(format!("name = \"{}\"：是系统或预装 app 的名字，换一个", g.m.name));
+        bad.push(format!("name = \"{}\"：是系统的名字，换一个", g.m.name));
     }
     if !has("title") {
         bad.push("要有 title（可以再加 title_zh）".into());
