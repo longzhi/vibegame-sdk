@@ -216,6 +216,9 @@ fn agree_source(s: &mut Saved, name: &str, src: &source::Source) -> Result<()> {
     for (f, size) in &src.files {
         println!("  {f}  {} KB", size.div_ceil(1024));
     }
+    for c in &src.changed {
+        println!("  Cargo.toml 改了：{c}（别人才编得了，你的文件不动）");
+    }
     if s.public.iter().any(|n| n == name) {
         return Ok(());
     }
