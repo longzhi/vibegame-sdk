@@ -25,5 +25,7 @@ cpal = "0.16"
 # 打 .vp 包（tar.gz）。
 tar = "0.4"
 flate2 = "1"
+# 改一改：下载的源码对一遍列表里的 sha256。
+sha2 = "0.10"
 # 推到掌机、发到集市：一个阻塞的 HTTP 客户端。掌机只在局域网里走 http；集市走 https（rustls）。
 ureq = { version = "3", default-features = false, features = ["json", "rustls"] }

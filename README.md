@@ -83,6 +83,7 @@ The screen, sound and button code is the same code that runs on the handheld. Wh
 - **Market**: run `vibeplay login` once (you sign in with GitHub in a browser). Then `vibeplay publish` checks the game, runs it for 600 frames without a window, takes three screenshots and uploads it. It is in the Market at once, and other handhelds can install it.
   Each publish needs a higher `version`. `vibeplay status` shows your games. `vibeplay unpublish <name>` takes a game out of the Market.
   To share the source too, add `--source`. It sends only `Cargo.toml`, `Cargo.lock`, `app.toml`, `src/` and `assets/` (at most 2 MB compressed), and lists them first. The first time for each game, you type yes. The license is MIT unless you set `license` in `app.toml`.
+- **Remix**: if a game in the Market shares its source, `vibeplay remix <name> [new-dir]` downloads the source and starts a new game of yours from it. The game records which version it came from. When you `publish` it, the Market shows the game it came from.
 - **Wi-Fi on the handheld**: type the password with the D-pad in Settings, or put a `wifi.toml` file at the top of the TF card and turn the handheld on:
 
   ```toml

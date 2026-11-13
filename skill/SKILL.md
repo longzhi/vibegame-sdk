@@ -164,3 +164,14 @@ https://github.com/second-state/vibeplay-sdk/tree/main/examples 有四款做完�
   - 只收 `Cargo.toml`、`Cargo.lock`、`app.toml`、`src/`、`assets/`，压缩后最多 2 MB。不收隐藏文件，不收像 key 的字符串。
   - 每个游戏第一次公开时，要人在终端里答应（输 yes），agent 替不了。以后的版本只列出文件。
   - 开源协议默认 MIT。人要别的，在清单的 `[app]` 里写 `license = "Apache-2.0"` 这样的 SPDX 写法。
+
+## 改别人的游戏
+
+集市上公开了源码的游戏，谁都能改成自己的。人说「把集市上的 skyfire 改成……」，照这样做：
+
+- `vibeplay remix skyfire <新名字>`：下载 skyfire 最新那一版的源码，起一个新游戏。目录名就是新名字，不写是 `skyfire-remix`。
+  作者没有公开源码的游戏改不了，就跟人说。
+- 新游戏的名字、版本（0.1.0）已经换好，清单里记了 `from = "skyfire@0.1.1"`。不要删这一行：集市靠它写出「改自 skyfire」。
+- 开源协议照原来的（清单里的 `license`）。不要改成别的，除非人说了，而且原来的开源协议允许。
+- 照人说的改，`vibeplay run`、`shot` 自己验，`push` 推到掌机给人玩。
+- 人说要发，再 `publish`。发之前把 `title`、`description` 改成新游戏的，封面最好也换：不然集市上有两个一样名字的游戏。

@@ -80,6 +80,7 @@ vibeplay run --headless --frames 300 --input s.txt   # 印出每一个音调
 - **集市**：`vibeplay login` 登录一次（在浏览器里登 GitHub）。以后 `vibeplay publish` 查游戏、不开窗口跑 600 帧、截三张图、上传，马上上架，别人的掌机就能装。
   每发一次 `version` 要往上加。`vibeplay status` 看你的游戏，`vibeplay unpublish <名字>` 下架。
   想同时公开源码，加 `--source`。只传 `Cargo.toml`、`Cargo.lock`、`app.toml`、`src/`、`assets/`（压缩后最多 2 MB），传之前先列出来。每个游戏第一次要你输 yes。开源协议默认 MIT，要别的在 `app.toml` 里写 `license`。
+- **改一改**：集市上公开了源码的游戏，`vibeplay remix <名字> [新目录]` 下载它的源码，起一个你的新游戏，记下改自哪一版。改完照常 `publish`，集市上会写「改自」原来那个游戏。
 - **掌机连 Wi-Fi**：在设置里用十字键输口令；或者在 TF 卡根目录放一个 `wifi.toml`，插上卡开机就连：
 
   ```toml
