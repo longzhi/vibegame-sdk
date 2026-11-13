@@ -79,6 +79,7 @@ vibeplay run --headless --frames 300 --input s.txt   # 印出每一个音调
 - **TF 卡**：`vibeplay pack` 出的 `.vp` 拷进卡上的 `games` 目录（叫「游戏」也行）。插上掌机开机就安装。
 - **集市**：`vibeplay login` 登录一次（在浏览器里登 GitHub）。以后 `vibeplay publish` 查游戏、不开窗口跑 600 帧、截三张图、上传，马上上架，别人的掌机就能装。
   每发一次 `version` 要往上加。`vibeplay status` 看你的游戏，`vibeplay unpublish <名字>` 下架。
+  想同时公开源码，加 `--source`。只传 `Cargo.toml`、`Cargo.lock`、`app.toml`、`src/`、`assets/`（压缩后最多 2 MB），传之前先列出来。每个游戏第一次要你输 yes。开源协议默认 MIT，要别的在 `app.toml` 里写 `license`。
 - **掌机连 Wi-Fi**：在设置里用十字键输口令；或者在 TF 卡根目录放一个 `wifi.toml`，插上卡开机就连：
 
   ```toml
