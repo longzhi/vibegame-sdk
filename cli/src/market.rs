@@ -3,7 +3,7 @@
 //! ```text
 //! POST /v1/login/start                    → {device_code, user_code, verification_uri, interval}
 //! POST /v1/login/poll  {device_code}      → {pending} 或 {token, login}
-//! POST /v1/publish     multipart：package、agree=yes、shot×3   头 authorization: Bearer <令牌>
+//! POST /v1/publish     multipart：package、agree=yes、shot×3、source（--source 才有）   头 authorization: Bearer <令牌>
 //! GET  /v1/status?name=                   → {login, apps: [...], rejected: [...]}
 //! POST /v1/unpublish   {name, version?}
 //! ```
@@ -13,7 +13,7 @@
 
 use crate::game::Game;
 use crate::player::Player;
-use crate::{pack, script};
+use crate::{pack, script, source};
 use anyhow::{bail, Context, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -39,6 +39,9 @@ struct Saved {
     /// 同意过条款：有权发布包里的全部内容。只问一次。
     #[serde(default)]
     agreed: bool,
+    /// 作者答应过公开源码的游戏（QingOS ADR 0044）。每个游戏只问一次。
+    #[serde(default)]
+    public: Vec<String>,
 }
 
 fn file() -> Result<PathBuf> {
@@ -104,8 +107,11 @@ pub fn login(market: &str) -> Result<()> {
         let r = reply(a.post(format!("{market}/v1/login/poll")).send_json(json!({ "device_code": code })), market)?;
         if let Some(t) = r["token"].as_str() {
             let who = r["login"].as_str().unwrap_or("").to_string();
-            let agreed = saved().is_some_and(|s| s.agreed && s.login == who);
-            save(&Saved { market: market.into(), token: t.into(), login: who.clone(), agreed })?;
+            // 同一个账号再登录：同意过的、答应公开过的照旧。
+            let same = saved().filter(|s| s.login == who);
+            let agreed = same.as_ref().is_some_and(|s| s.agreed);
+            let public = same.map(|s| s.public).unwrap_or_default();
+            save(&Saved { market: market.into(), token: t.into(), login: who.clone(), agreed, public })?;
             println!("登录好了：{who}。令牌存在 {}", file()?.display());
             return Ok(());
         }
@@ -204,6 +210,28 @@ fn agree(s: &mut Saved) -> Result<()> {
     save(s)
 }
 
+/// 列出要公开的源码，第一次公开这个游戏时问作者。只在有人的终端上能答。
+fn agree_source(s: &mut Saved, name: &str, src: &source::Source) -> Result<()> {
+    println!("要公开的源码（开源协议 {}，压缩后 {} KB）：", src.license, src.bytes.len().div_ceil(1024));
+    for (f, size) in &src.files {
+        println!("  {f}  {} KB", size.div_ceil(1024));
+    }
+    if s.public.iter().any(|n| n == name) {
+        return Ok(());
+    }
+    println!("公开以后，谁都能看、能下载，能照 {} 开源协议改了再发布。下架或者被停用以后，集市不再给这份源码。", src.license);
+    println!("换开源协议：在 app.toml 的 [app] 里写 license = \"...\"（SPDX 的写法）。");
+    print!("公开 {name} 的源码吗？输 yes 回车：");
+    std::io::stdout().flush()?;
+    let mut line = String::new();
+    std::io::stdin().read_line(&mut line)?;
+    if line.trim() != "yes" {
+        bail!("没答应公开，不发。不想公开源码就去掉 --source。要人自己在终端里答这一条");
+    }
+    s.public.push(name.to_string());
+    save(s)
+}
+
 /// multipart 的身子：几个 (名字, 文件名, 字节)。
 fn multipart(parts: &[(&str, Option<&str>, &[u8])]) -> (String, Vec<u8>) {
     let boundary = format!("vibeplay{:x}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap_or_default().as_nanos());
@@ -221,7 +249,7 @@ fn multipart(parts: &[(&str, Option<&str>, &[u8])]) -> (String, Vec<u8>) {
     (format!("multipart/form-data; boundary={boundary}"), body)
 }
 
-pub fn publish(dir: &Path, market: &str) -> Result<()> {
+pub fn publish(dir: &Path, market: &str, with_source: bool) -> Result<()> {
     let token = token(market)?;
     let g = Game::open(dir)?;
     check_manifest(&g)?;
@@ -229,9 +257,16 @@ pub fn publish(dir: &Path, market: &str) -> Result<()> {
     let wasm = g.build()?;
     let shots = trial(&g, &wasm)?;
     let (pkg, _) = pack::pack(dir, None)?;
+    let src = with_source.then(|| source::pack(dir)).transpose()?;
     let mut s = saved().unwrap_or_default();
     agree(&mut s)?;
+    if let Some(src) = &src {
+        agree_source(&mut s, &g.m.name, src)?;
+    }
     let mut parts: Vec<(&str, Option<&str>, &[u8])> = vec![("package", Some("app.vp"), &pkg), ("agree", None, b"yes")];
+    if let Some(src) = &src {
+        parts.push(("source", Some("source.tar.gz"), &src.bytes));
+    }
     for (i, shot) in shots.iter().enumerate() {
         parts.push(("shot", Some(["1.png", "2.png", "3.png"][i]), shot));
     }
@@ -240,6 +275,9 @@ pub fn publish(dir: &Path, market: &str) -> Result<()> {
     let r = reply(agent().post(format!("{market}/v1/publish")).header("authorization", format!("Bearer {token}")).header("content-type", ctype).send(&body[..]), market)?;
     let sha = r["sha256"].as_str().unwrap_or("");
     println!("上架了：{} {}（sha256 {}）。掌机下次打开集市就看得到。", r["name"].as_str().unwrap_or(""), r["version"].as_str().unwrap_or(""), sha.get(..8).unwrap_or(sha));
+    if src.is_some() {
+        println!("源码也公开了：{market}/src/{}/{}.tar.gz", r["name"].as_str().unwrap_or(""), r["version"].as_str().unwrap_or(""));
+    }
     Ok(())
 }
 

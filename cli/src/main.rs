@@ -7,6 +7,7 @@ mod new;
 mod pack;
 mod player;
 mod script;
+mod source;
 mod web;
 mod window;
 
@@ -32,6 +33,7 @@ const USAGE: &str = "vibeplay：做掌机游戏（240×160、256 色、每秒 60
   vibeplay push [游戏] [--watch]         打包、推到配好的掌机上、打开。--watch：一改就再推
   vibeplay login                        登录集市（GitHub 账号，要人在浏览器里点）
   vibeplay publish [游戏]                查清单、不开窗口跑 600 帧、截三张图、打包、发到集市，过了马上上架
+  vibeplay publish [游戏] --source       同时公开源码：只收 Cargo.toml、Cargo.lock、app.toml、src/、assets/，先列出来，第一次要你答应
   vibeplay status [名字]                 你在集市上的 app：每个版本上没上架、装了几次、最近没过的原因
   vibeplay unpublish <名字> [--version x.y.z]
                                         从集市下架。已经装了的掌机照常用
@@ -53,7 +55,7 @@ struct Args {
 }
 
 /// 不带值的开关。
-const SWITCHES: [&str; 3] = ["headless", "watch", "remote"];
+const SWITCHES: [&str; 4] = ["headless", "watch", "remote", "source"];
 
 impl Args {
     fn parse(it: impl Iterator<Item = String>) -> Result<Args> {
@@ -181,8 +183,8 @@ fn run(mut args: Vec<String>) -> Result<()> {
             market::login(&market::url(a.get("market")))
         }
         "publish" => {
-            a.only(&["market"])?;
-            market::publish(&a.game(0), &market::url(a.get("market")))
+            a.only(&["market", "source"])?;
+            market::publish(&a.game(0), &market::url(a.get("market")), a.has("source"))
         }
         "status" => {
             a.only(&["market"])?;

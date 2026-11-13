@@ -82,6 +82,7 @@ The screen, sound and button code is the same code that runs on the handheld. Wh
 - **TF card**: copy the `.vp` file from `vibeplay pack` into the `games` folder on the card (a folder named `游戏` also works). Put the card in and turn the handheld on to install it.
 - **Market**: run `vibeplay login` once (you sign in with GitHub in a browser). Then `vibeplay publish` checks the game, runs it for 600 frames without a window, takes three screenshots and uploads it. It is in the Market at once, and other handhelds can install it.
   Each publish needs a higher `version`. `vibeplay status` shows your games. `vibeplay unpublish <name>` takes a game out of the Market.
+  To share the source too, add `--source`. It sends only `Cargo.toml`, `Cargo.lock`, `app.toml`, `src/` and `assets/` (at most 2 MB compressed), and lists them first. The first time for each game, you type yes. The license is MIT unless you set `license` in `app.toml`.
 - **Wi-Fi on the handheld**: type the password with the D-pad in Settings, or put a `wifi.toml` file at the top of the TF card and turn the handheld on:
 
   ```toml

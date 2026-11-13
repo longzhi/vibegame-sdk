@@ -160,3 +160,7 @@ https://github.com/second-state/vibeplay-sdk/tree/main/examples 有四款做完�
 - 每发一次，`version` 要往上加（0.1.0 → 0.1.1）。发错了不能退回，发一个更大的版本。
 - `vibeplay status` 看上没上架、装了几次、最近没过的原因。`vibeplay unpublish <名字>` 下架，已经装了的掌机照常用。
 - 集市不收：要 mcu 的、带人格的、要网却没写 `hosts` 的。一个账号一天最多发 20 次。
+- 公开源码是作者自己的事：人说了要公开，才加 `--source`。不要替人决定。
+  - 只收 `Cargo.toml`、`Cargo.lock`、`app.toml`、`src/`、`assets/`，压缩后最多 2 MB。不收隐藏文件，不收像 key 的字符串。
+  - 每个游戏第一次公开时，要人在终端里答应（输 yes），agent 替不了。以后的版本只列出文件。
+  - 开源协议默认 MIT。人要别的，在清单的 `[app]` 里写 `license = "Apache-2.0"` 这样的 SPDX 写法。
