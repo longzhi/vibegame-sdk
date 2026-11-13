@@ -97,7 +97,7 @@ A Market package has no `.cwasm`: the handheld builds it from the `.wasm`.
 
 ## What it is built on
 
-Each game is a full-screen app on [QingOS](https://github.com/second-state/qingos-sdk). The library for apps (qapp) and the library that runs full-screen apps (qfull) are in qingos-sdk. This repository uses them as git dependencies.
+Each game is a full-screen app on [QingOS](https://qingos.korekore.ai/). The library for apps (qapp) and the library that runs full-screen apps (qfull) are in [qingos-sdk](https://github.com/second-state/qingos-sdk). This repository uses them as git dependencies.
 
 ## License
 

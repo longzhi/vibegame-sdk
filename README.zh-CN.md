@@ -94,7 +94,7 @@ vibeplay run --headless --frames 300 --input s.txt   # 印出每一个音调
 
 ## 建在什么上
 
-游戏是 [QingOS](https://github.com/second-state/qingos-sdk) 上的一个整屏 app。写 app 的库（qapp）和放整屏 app 的库（qfull）在 qingos-sdk 里，这里用 git 依赖。
+游戏是 [QingOS](https://qingos.korekore.ai/zh/) 上的一个整屏 app。写 app 的库（qapp）和放整屏 app 的库（qfull）在 [qingos-sdk](https://github.com/second-state/qingos-sdk) 里，这里用 git 依赖。
 
 ## 开源协议
 
