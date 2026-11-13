@@ -3,8 +3,10 @@
 name        = "ironcamp"
 title       = "Iron Camp"
 title_zh    = "铁壳守营"
+description    = "Top-down tank battle. Brick walls break, steel walls do not. Twenty enemy tanks per stage, twenty stages."
+description_zh = "开小坦克守营地：砖墙打得碎，钢墙打不动，一关二十辆敌车，二十关"   # 集市上的介绍
+langs          = ["en", "zh"]
 version     = "0.1.0"
-description = "开小坦克守营地：砖墙打得碎，钢墙打不动，一关二十辆敌车，二十关"
 command     = "bin/ironcamp.cwasm"
 screen      = "full"
 cover       = "assets/cover.png"   # 家上的封面：tools/game-covers.py 画的，96×80
