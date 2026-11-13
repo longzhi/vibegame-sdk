@@ -2,6 +2,7 @@
 
 mod device;
 mod game;
+mod market;
 mod new;
 mod pack;
 mod player;
@@ -25,11 +26,18 @@ const USAGE: &str = "vibeplay：做掌机游戏（240×160、256 色、每秒 60
                                         跑到第 N 帧，存成 PNG（默认放大 3 倍；真彩的不放大，640×480）。几个帧号就存几张：a-N.png
                                         看小精灵的细节：--crop 框住它，--scale 6 放大
   vibeplay web [游戏] [--out a.html]     出网页版：一个 HTML 文件，浏览器里就能玩，能发给别人
+  vibeplay web --remote [--out a.html]  出不带游戏的网页版：打开时按 ?pkg=<地址> 拉一个 .vp 再玩（集市的网页用）
   vibeplay pack [游戏] [--out 目录]      打包成 <名字>.vp：拷进 TF 卡的「游戏」目录，或者 push
   vibeplay pair <掌机的地址>             和掌机配对（掌机要开开发者模式，屏幕上有口令）
   vibeplay push [游戏] [--watch]         打包、推到配好的掌机上、打开。--watch：一改就再推
+  vibeplay login                        登录集市（GitHub 账号，要人在浏览器里点）
+  vibeplay publish [游戏]                查清单、不开窗口跑 600 帧、截三张图、打包、发到集市，过了马上上架
+  vibeplay status [名字]                 你在集市上的 app：每个版本上没上架、装了几次、最近没过的原因
+  vibeplay unpublish <名字> [--version x.y.z]
+                                        从集市下架。已经装了的掌机照常用
   vibeplay skill [install [--to 目录]]   印出给 agent 的说明；install 装进 Claude Code 和 Codex
 
+集市的命令都能加 --market <地址>（本机试的时候指 wrangler dev），也能设环境变量 VIBEPLAY_MARKET。
 --lang 是游戏看到的系统语言：en（默认）或 zh。掌机默认英文，人在设置里换。
 --data 是存档放在哪个目录。--headless 和 shot 不给就存不了：vibeplay::save 回 false，读也读不到。
 [游戏] 是游戏的目录（有 app.toml），不写是当前目录。run、shot 也能直接给一个 .wasm 文件。
@@ -45,7 +53,7 @@ struct Args {
 }
 
 /// 不带值的开关。
-const SWITCHES: [&str; 2] = ["headless", "watch"];
+const SWITCHES: [&str; 3] = ["headless", "watch", "remote"];
 
 impl Args {
     fn parse(it: impl Iterator<Item = String>) -> Result<Args> {
@@ -135,6 +143,14 @@ fn run(mut args: Vec<String>) -> Result<()> {
             a.only(&["frames", "input", "data", "out", "scale", "crop", "lang"])?;
             shot(&a)
         }
+        "web" if a.has("remote") => {
+            a.only(&["remote", "out"])?;
+            let html = web::remote_page();
+            let out = a.path("out").unwrap_or_else(|| PathBuf::from("dist/play.html"));
+            write(&out, html.as_bytes())?;
+            println!("{}（打开时加 ?pkg=<包的地址>）", out.display());
+            Ok(())
+        }
         "web" => {
             a.only(&["out"])?;
             let g = game::Game::open(&a.game(0))?;
@@ -146,7 +162,7 @@ fn run(mut args: Vec<String>) -> Result<()> {
         }
         "pack" => {
             a.only(&["out", "target"])?;
-            let (bytes, g) = pack::pack(&a.game(0), a.get("target").unwrap_or(pack::DEVICE_TARGET))?;
+            let (bytes, g) = pack::pack(&a.game(0), Some(a.get("target").unwrap_or(pack::DEVICE_TARGET)))?;
             let out = a.path("out").unwrap_or_else(|| PathBuf::from("dist")).join(format!("{}.vp", g.m.name));
             write(&out, &bytes)?;
             println!("{}（{} KB）", out.display(), bytes.len() / 1024);
@@ -159,6 +175,23 @@ fn run(mut args: Vec<String>) -> Result<()> {
         "push" => {
             a.only(&["watch", "device"])?;
             device::push(&a.game(0), a.get("device"), a.has("watch"))
+        }
+        "login" => {
+            a.only(&["market"])?;
+            market::login(&market::url(a.get("market")))
+        }
+        "publish" => {
+            a.only(&["market"])?;
+            market::publish(&a.game(0), &market::url(a.get("market")))
+        }
+        "status" => {
+            a.only(&["market"])?;
+            market::status(a.pos.first().map(String::as_str), &market::url(a.get("market")))
+        }
+        "unpublish" => {
+            a.only(&["market", "version"])?;
+            let name = a.pos.first().context("要 app 的名字：vibeplay unpublish mygame")?;
+            market::unpublish(name, a.get("version"), &market::url(a.get("market")))
         }
         "skill" => {
             a.only(&["to"])?;

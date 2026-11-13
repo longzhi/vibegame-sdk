@@ -114,3 +114,28 @@ fn typos_are_errors_not_ignored() {
     assert!(vibeplay(&["shot", ".", "--frame", "5"], &d).unwrap_err().contains("--frame"));
     assert!(vibeplay(&["fly"], &d).unwrap_err().contains("不认识的命令"));
 }
+
+/// 发到集市前在这台电脑上先查：没登录不发；清单缺 description 不连网就报。
+#[test]
+fn publish_checks_before_it_uploads() {
+    let d = tmp("publish");
+    let run = |args: &[&str], config: &Path| {
+        let _one = ONE_AT_A_TIME.lock().unwrap_or_else(|e| e.into_inner());
+        Command::new(env!("CARGO_BIN_EXE_vibeplay")).args(args).current_dir(&d).env("XDG_CONFIG_HOME", config).env_remove("VIBEPLAY_MARKET").output().unwrap()
+    };
+    let none = d.join("no-config");
+    let out = run(&["publish", blank().to_str().unwrap()], &none);
+    assert!(String::from_utf8_lossy(&out.stderr).contains("还没登录"), "{}", String::from_utf8_lossy(&out.stderr));
+
+    let cfg = d.join("config");
+    std::fs::create_dir_all(cfg.join("vibeplay")).unwrap();
+    // 集市的地址连不上：要是查完清单才连网，这里就报连不上，不报清单。
+    let market = "http://127.0.0.1:9";
+    std::fs::write(cfg.join("vibeplay/market.json"), format!(r#"{{"market":"{market}","token":"vp_x","login":"t","agreed":true}}"#)).unwrap();
+    let out = run(&["new", "mygame", "--sdk", Path::new(env!("CARGO_MANIFEST_DIR")).join("..").to_str().unwrap()], &cfg);
+    assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));
+    let out = run(&["publish", "mygame", "--market", market], &cfg);
+    let err = String::from_utf8_lossy(&out.stderr);
+    assert!(err.contains("要有 description"), "{err}");
+    assert!(!err.contains("连不上"), "{err}");
+}

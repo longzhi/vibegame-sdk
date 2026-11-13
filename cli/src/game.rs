@@ -117,7 +117,8 @@ pub fn build(dir: &Path) -> Result<PathBuf> {
     let mut found = None;
     for line in String::from_utf8_lossy(&out.stdout).lines() {
         let Ok(v) = serde_json::from_str::<serde_json::Value>(line) else { continue };
-        if v["reason"] != "compiler-artifact" || v["manifest_path"].as_str().map(Path::new) != Some(manifest.as_path()) {
+        // cargo 回的路径可能没解开符号链接（macOS 的 /var 是 /private/var）：两边都解开再比。
+        if v["reason"] != "compiler-artifact" || v["manifest_path"].as_str().and_then(|p| std::fs::canonicalize(p).ok()).as_deref() != Some(manifest.as_path()) {
             continue;
         }
         for f in v["filenames"].as_array().into_iter().flatten() {

@@ -7,6 +7,7 @@ use std::path::Path;
 
 const PAGE: &str = include_str!("../../web/page.html");
 const PLAYER: &str = include_str!("../../web/player.js");
+const REMOTE: &str = include_str!("../../web/remote.js");
 
 fn b64(bytes: &[u8]) -> String {
     const T: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -50,8 +51,23 @@ pub fn page(dir: &Path) -> Result<String> {
     Ok(PAGE.replace("{{title}}", &escape(&title)).replace("{{data}}", &data).replace("{{player}}", PLAYER))
 }
 
+/// 不带游戏的网页版：打开时按地址里的 `?pkg=` 拉一个 .vp 再玩。集市的网页用它。
+pub fn remote_page() -> String {
+    PAGE.replace("{{title}}", "VibePlay")
+        .replace("<script>window.VP = {{data}};</script>", "")
+        .replace("<script>{{player}}</script>", &format!("<script type=\"text/plain\" id=\"vp-player\">{PLAYER}</script>\n<script>{REMOTE}</script>"))
+}
+
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn the_remote_page_waits_for_a_package() {
+        let p = super::remote_page();
+        assert!(p.contains("id=\"vp-player\"") && p.contains("?pkg="));
+        assert!(!p.contains("{{"), "模板里的空都填上了");
+        assert!(!super::PLAYER.contains("</script"), "player.js 放进 <script> 里不能提前关上");
+    }
+
     #[test]
     fn base64_matches_the_standard() {
         assert_eq!(super::b64(b""), "");

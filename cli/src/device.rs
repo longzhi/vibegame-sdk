@@ -22,8 +22,13 @@ pub struct Device {
 }
 
 fn file() -> Option<PathBuf> {
+    Some(config_dir()?.join("device.json"))
+}
+
+/// 命令行存东西的目录：~/.config/vibeplay。只在这台开发机上。
+pub fn config_dir() -> Option<PathBuf> {
     let base = std::env::var_os("XDG_CONFIG_HOME").map(PathBuf::from).or_else(|| std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".config")))?;
-    Some(base.join("vibeplay/device.json"))
+    Some(base.join("vibeplay"))
 }
 
 /// 配过的掌机。
@@ -93,7 +98,7 @@ pub fn pair(host: &str, code: Option<&str>) -> Result<()> {
 
 /// 推一次：打包、发过去、说结果。
 fn push_once(dir: &Path, d: &Device) -> Result<()> {
-    let (bytes, g) = pack::pack(dir, pack::DEVICE_TARGET)?;
+    let (bytes, g) = pack::pack(dir, Some(pack::DEVICE_TARGET))?;
     println!("推 {}（{} KB）到 {}…", g.m.name, bytes.len() / 1024, d.host);
     // 新游戏要人在掌机上按，最多等 90 秒。
     let mut r = agent(90)

@@ -63,6 +63,10 @@ panic = "abort"
         .map(|l| {
             if l.starts_with("title_zh") {
                 "# title_zh  = \"中文名\"          # 系统是中文时用这个名字\n".to_string()
+            } else if l.starts_with("description_zh") {
+                "# description_zh = \"中文的介绍\"\n".to_string()
+            } else if l.starts_with("description ") {
+                "description    = \"\"   # 集市上的一两句介绍：发到集市前写好\n".to_string()
             } else if l.starts_with("title ") {
                 format!("title     = \"{}\"\n", title.replace('"', ""))
             } else {

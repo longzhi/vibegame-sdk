@@ -7,7 +7,8 @@
 //! assets/…            封面和别的素材
 //! ```
 //!
-//! 掌机上不带编译器，所以 `.cwasm` 在这里编。掌机的系统升级换了 wasmtime，旧包要重新打。
+//! 推到掌机、拷进 TF 卡的包带 `.cwasm`：掌机装的时候不编，所以在这里编。掌机的系统升级换了 wasmtime，旧包要重新打。
+//! 发到集市的包不带 `.cwasm`：掌机从 `.wasm` 自己编，不用别人编的本机码（QingOS 的 ADR 0039）。
 
 use crate::game::Game;
 use anyhow::{Context, Result};
@@ -16,12 +17,11 @@ use std::path::{Path, PathBuf};
 /// 掌机的目标三元组。
 pub const DEVICE_TARGET: &str = "aarch64-unknown-linux-musl";
 
-/// 打一个包，回包的字节和游戏的名字。
-pub fn pack(dir: &Path, target: &str) -> Result<(Vec<u8>, Game)> {
+/// 打一个包，回包的字节和游戏。`target` 是 None 时不带 `.cwasm`（发到集市的包）。
+pub fn pack(dir: &Path, target: Option<&str>) -> Result<(Vec<u8>, Game)> {
     let g = Game::open(dir)?;
     let wasm_path = g.build()?;
     let wasm = std::fs::read(&wasm_path)?;
-    let cwasm = qfull::precompile(&wasm, Some(target)).with_context(|| format!("给 {target} 编不了"))?;
     let mut tar = tar::Builder::new(flate2::write::GzEncoder::new(Vec::new(), flate2::Compression::best()));
     let add = |tar: &mut tar::Builder<_>, name: &str, bytes: &[u8]| -> Result<()> {
         let mut h = tar::Header::new_gnu();
@@ -35,7 +35,10 @@ pub fn pack(dir: &Path, target: &str) -> Result<(Vec<u8>, Game)> {
     add(&mut tar, "app.toml", &std::fs::read(dir.join("app.toml"))?)?;
     let cmd = g.m.command.clone();
     add(&mut tar, &cmd.replace(".cwasm", ".wasm"), &wasm)?;
-    add(&mut tar, &cmd, &cwasm)?;
+    if let Some(target) = target {
+        let cwasm = qfull::precompile(&wasm, Some(target)).with_context(|| format!("给 {target} 编不了"))?;
+        add(&mut tar, &cmd, &cwasm)?;
+    }
     for f in files(&dir.join("assets"))? {
         let rel = f.strip_prefix(dir).unwrap().to_string_lossy().replace('\\', "/");
         add(&mut tar, &rel, &std::fs::read(&f)?)?;
