@@ -1,0 +1,14 @@
+# 小 app《桌面时钟》：竖在键盘边上看的大字时钟，底下一个像素鱼缸。
+[app]
+name        = "deskclock"
+title       = "Desk Clock"
+title_zh    = "桌面时钟"
+description    = "A big pixel clock for next to your keyboard, with a fish tank under it. The tank light follows the hour."
+description_zh = "放在键盘边上的大字像素时钟，底下一个鱼缸：白天亮、傍晚暖、夜里鱼睡觉"   # 集市上的介绍
+langs          = ["en", "zh"]
+version     = "0.1.0"
+command     = "bin/deskclock.cwasm"
+screen      = "full"
+cover       = "assets/cover.png"   # 家上的封面：tools/covers/deskclock.py 画的，96×80
+rate_hz     = 60
+memory_mb   = 16

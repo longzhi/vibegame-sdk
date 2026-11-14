@@ -1,0 +1,12 @@
+[package]
+name = "mathstar"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+description = "小 app《口算星星》：给孩子的口算，十道题，答对一道得一颗星"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+vibeplay = { path = "../../vibeplay" }

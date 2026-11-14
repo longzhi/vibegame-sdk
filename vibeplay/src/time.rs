@@ -16,10 +16,12 @@ pub struct Time {
     pub hour: u32,
     pub minute: u32,
     pub second: u32,
+    /// 时区偏移（秒），东八区是 28800。
+    pub tz_offset: i32,
 }
 
 impl Time {
-    /// 从 Unix 秒和时区偏移（秒）算出本地时间。测试里用它造一个时间。
+    /// 从 Unix 秒和时区偏移（秒）算出本地时间。测试里用它造一个时间，比如「夜里 23 点」「过了 8 小时」。
     pub fn at(unix: i64, tz_offset: i32) -> Time {
         let local = unix + tz_offset as i64;
         let days = local.div_euclid(86_400);
@@ -36,7 +38,14 @@ impl Time {
         let year = (yoe + era * 400 + if month <= 2 { 1 } else { 0 }) as i32;
         // 1970-01-01 是星期四。
         let weekday = (days + 3).rem_euclid(7) as u32;
-        Time { unix, year, month, day, weekday, hour: secs / 3_600, minute: secs / 60 % 60, second: secs % 60 }
+        Time { unix, year, month, day, weekday, hour: secs / 3_600, minute: secs / 60 % 60, second: secs % 60, tz_offset }
+    }
+}
+
+/// 过了 `secs` 秒以后的本地时间（同一个时区）。
+impl Time {
+    pub fn plus(&self, secs: i64) -> Time {
+        Time::at(self.unix + secs, self.tz_offset)
     }
 }
 
@@ -63,5 +72,6 @@ mod tests {
         // 时区往回拨跨过零点：UTC 1 月 1 日 01:00，在 -5 是前一年的 12 月 31 日。
         let t = Time::at(1_767_229_200, -5 * 3600);
         assert_eq!((t.year, t.month, t.day, t.hour), (2025, 12, 31, 20));
+        assert_eq!(t.plus(4 * 3600).day, 1, "再过 4 小时到了 1 月 1 日");
     }
 }

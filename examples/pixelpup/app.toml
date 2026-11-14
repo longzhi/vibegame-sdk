@@ -1,0 +1,13 @@
+[app]
+name      = "pixelpup"
+title     = "Pixel Pup"
+title_zh  = "像素小狗"
+description    = "A pixel dog that gets hungry. Feed it with A, walk it with B."
+description_zh = "一只会饿的像素小狗：A 喂饭，B 遛狗"   # 集市上的介绍
+langs          = ["en", "zh"]
+version   = "0.1.0"
+command   = "bin/pixelpup.cwasm"
+screen    = "full"
+cover     = "assets/cover.png"   # 掌机的家上的封面，96×80
+rate_hz   = 60
+memory_mb = 16

@@ -1,0 +1,12 @@
+[package]
+name = "scorepad"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+description = "小 app《记分板》：聚会、打牌时记分，二到六个人"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+vibeplay = { path = "../../vibeplay" }

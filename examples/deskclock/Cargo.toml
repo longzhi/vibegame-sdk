@@ -1,0 +1,12 @@
+[package]
+name = "deskclock"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+description = "小 app《桌面时钟》：大字时钟，底下一个像素鱼缸"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+vibeplay = { path = "../../vibeplay" }

@@ -1,0 +1,12 @@
+[package]
+name = "pixelpup"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+description = "小 app《像素小狗》：电子宠物，随真的时间饿，A 喂饭，B 遛狗"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+vibeplay = { path = "../../vibeplay" }
