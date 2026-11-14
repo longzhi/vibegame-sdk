@@ -1,0 +1,12 @@
+[package]
+name = "beatbox"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+description = "小 app《节拍盒》：八步的音序器，四行，调速度，存下节奏"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+vibeplay = { path = "../../vibeplay" }

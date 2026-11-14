@@ -2,7 +2,7 @@
 
 English · [中文](README.zh-CN.md)
 
-Make pixel games for the VibePlay handheld: 240×160, 256 colors, 60 frames a second, four chip-sound channels.
+Make pixel games and small apps for the VibePlay handheld: 240×160, 256 colors, 60 frames a second, four chip-sound channels.
 You write games in Rust and build them to wasm. Write them yourself, or let an agent write them. Claude Code and Codex work, and so do other agents.
 
 You need Rust. If you do not have it, install it from [rustup.rs](https://rustup.rs) first.
@@ -30,8 +30,8 @@ vibeplay push --watch         # send it to the handheld and open it; send again 
 | `web/` | The web player. `vibeplay web` puts it and the game into one HTML file |
 | `skill/SKILL.md` | The instructions for agents. `vibeplay skill` prints them |
 | `templates/blank/` | The template that `vibeplay new` starts from: Star Catch |
-| `examples/` | Four finished games to copy from |
-| `tools/` | Makes the built-in font (`make-font.py`) and draws the covers of the sample games (`game-covers.py`) |
+| `examples/` | Four finished games and five small apps to copy from |
+| `tools/` | Makes the built-in font (`make-font.py`) and draws the covers of the samples (`game-covers.py`, `covers/`) |
 
 ## Four sample games
 
@@ -39,6 +39,16 @@ vibeplay push --watch         # send it to the handheld and open it; send again 
 - `thunder`, Thunder Strike: run-and-gun, four stages, pick one of two soldiers.
 - `skyfire`, Skyfire: vertical shooter, four stages, a boss at the end of each.
 - `ironcamp`, Iron Camp: top-down tank battle, twenty stages.
+
+## Five sample apps
+
+Not only games. These need only a few buttons and no network:
+
+- `mathstar`, Math Star: math drills for kids. Ten questions, pick one of three answers, a star for each right one.
+- `pixelpup`, Pixel Pup: a pixel dog that gets hungry in real time. Feed it with A, walk it with B. It sleeps at night.
+- `deskclock`, Desk Clock: a big pixel clock with a fish tank under it, for next to your keyboard.
+- `scorepad`, Score Pad: a score pad for 2 to 6 players, with undo and a die.
+- `beatbox`, Beat Box: an 8-step beat maker with four rows and a tempo control.
 
 `vibeplay run examples/courier` plays one in a window. `vibeplay web examples/courier` makes its web version.
 

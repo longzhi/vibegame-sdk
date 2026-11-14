@@ -21,10 +21,11 @@ const USAGE: &str = "vibeplay：做掌机游戏（240×160、256 色、每秒 60
 
   vibeplay doctor                       查开发机缺什么（Rust、wasm32 目标、掌机连没连上）
   vibeplay new <目录> [--title 名字]     从模板起一个新游戏
-  vibeplay run [游戏] [--lang zh]        开窗口玩，有声音。存档放在 <游戏>/save/
-  vibeplay run [游戏] --headless --frames N [--input 脚本] [--data 目录] [--lang zh]
+  vibeplay run [游戏] [--lang zh] [--time 时间]
+                                        开窗口玩，有声音。存档放在 <游戏>/save/
+  vibeplay run [游戏] --headless --frames N [--input 脚本] [--data 目录] [--lang zh] [--time 时间]
                                         不开窗口，按脚本按键，印出每一个音调和录音
-  vibeplay shot [游戏] --frames N[,N…] [--input 脚本] [--data 目录] [--out a.png] [--scale K] [--crop x,y,w,h] [--lang zh]
+  vibeplay shot [游戏] --frames N[,N…] [--input 脚本] [--data 目录] [--out a.png] [--scale K] [--crop x,y,w,h] [--lang zh] [--time 时间]
                                         跑到第 N 帧，存成 PNG（默认放大 3 倍；真彩的不放大，640×480）。几个帧号就存几张：a-N.png
                                         看小精灵的细节：--crop 框住它，--scale 6 放大
   vibeplay web [游戏] [--out a.html]     出网页版：一个 HTML 文件，浏览器里就能玩，能发给别人
@@ -43,6 +44,8 @@ const USAGE: &str = "vibeplay：做掌机游戏（240×160、256 色、每秒 60
 
 集市的命令都能加 --market <地址>（本机试的时候指 wrangler dev），也能设环境变量 VIBEPLAY_MARKET。
 --lang 是游戏看到的系统语言：en（默认）或 zh。掌机默认英文，人在设置里换。
+--time 把钟定住，比如 2026-11-14T07:30:00（本机时区）或 2026-11-14T07:30:00+09:00。以后每 60 帧走一秒。
+         看时间的 app（时钟、宠物）截图要稳就加它。不加用这台电脑的钟。
 --data 是存档放在哪个目录。--headless 和 shot 不给就存不了：vibeplay::save 回 false，读也读不到。
 [游戏] 是游戏的目录（有 app.toml），不写是当前目录。run、shot 也能直接给一个 .wasm 文件。
 清单写了 frame = \"640x480\" 的是真彩 app（640×480、RGB565）：run 放在 720×480 的窗口中间，shot 存 640×480。网页版不认。
@@ -124,7 +127,7 @@ fn run(mut args: Vec<String>) -> Result<()> {
             new::create(Path::new(dir), a.get("title"), a.path("sdk").as_deref())
         }
         "run" if a.has("headless") => {
-            a.only(&["headless", "frames", "input", "data", "lang"])?;
+            a.only(&["headless", "frames", "input", "data", "lang", "time"])?;
             let frames: u64 = a.get("frames").context("--headless 要 --frames N")?.parse().context("--frames 要整数")?;
             let mut p = load(&a, a.path("data"))?;
             p.run(frames, &script(&a)?, |n, t| match t.channel {
@@ -136,7 +139,7 @@ fn run(mut args: Vec<String>) -> Result<()> {
             Ok(())
         }
         "run" => {
-            a.only(&["data", "lang"])?;
+            a.only(&["data", "lang", "time"])?;
             let g = a.game(0);
             let data = a.path("data").or_else(|| g.is_dir().then(|| g.join("save")));
             let name = game::module_of(&g)?.1;
@@ -144,7 +147,7 @@ fn run(mut args: Vec<String>) -> Result<()> {
             window::play(&name, &mut p)
         }
         "shot" => {
-            a.only(&["frames", "input", "data", "out", "scale", "crop", "lang"])?;
+            a.only(&["frames", "input", "data", "out", "scale", "crop", "lang", "time"])?;
             shot(&a)
         }
         "web" if a.has("remote") => {
@@ -234,7 +237,26 @@ fn load(a: &Args, data: Option<PathBuf>) -> Result<Player> {
     if let Some(d) = &data {
         std::fs::create_dir_all(d).with_context(|| format!("建不了 {}", d.display()))?;
     }
-    Player::load(&module, data, memory_mb)
+    let mut p = Player::load(&module, data, memory_mb)?;
+    if let Some(t) = a.get("time") {
+        let (start, tz) = parse_time(t)?;
+        p.set_clock(start, tz);
+    }
+    Ok(p)
+}
+
+/// `--time`：`2026-11-14T07:30:00`（本机时区）或带偏移的 `2026-11-14T07:30:00+09:00`。中间的 T 也能写成空格。
+fn parse_time(t: &str) -> Result<(i64, i32)> {
+    use chrono::{Local, NaiveDateTime, TimeZone};
+    let t = t.trim().replacen(' ', "T", 1);
+    if let Ok(d) = chrono::DateTime::parse_from_rfc3339(&t) {
+        return Ok((d.timestamp(), d.offset().local_minus_utc()));
+    }
+    let n = NaiveDateTime::parse_from_str(&t, "%Y-%m-%dT%H:%M:%S")
+        .or_else(|_| NaiveDateTime::parse_from_str(&t, "%Y-%m-%dT%H:%M"))
+        .with_context(|| format!("--time 看不懂「{t}」：写成 2026-11-14T07:30:00，或者加时区 +09:00"))?;
+    let d = Local.from_local_datetime(&n).earliest().with_context(|| format!("本机时区里没有 {t} 这个时间"))?;
+    Ok((d.timestamp(), d.offset().local_minus_utc()))
 }
 
 fn shot(a: &Args) -> Result<()> {

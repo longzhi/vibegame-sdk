@@ -18,6 +18,8 @@ serde_json.workspace = true
 serde = { version = "1", features = ["derive"] }
 toml = "0.8"
 png = "0.18"
+# --time：读人写的时间，按本机时区算。
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
 # 窗口：一个库管窗口、键盘、交一块 0RGB 的像素，不用 GPU。Linux 上只开 x11：运行时 dlopen libX11。
 minifb = { version = "0.29", default-features = false, features = ["x11"] }
 # 声音：一条输出流，cpal 直接调 CoreAudio / ALSA。

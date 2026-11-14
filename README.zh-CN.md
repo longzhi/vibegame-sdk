@@ -2,7 +2,7 @@
 
 [English](README.md) · 中文
 
-做 VibePlay 掌机上的像素游戏：240×160、256 色、每秒 60 帧，四个声道的芯片音。
+做 VibePlay 掌机上的像素游戏和小 app：240×160、256 色、每秒 60 帧，四个声道的芯片音。
 用 Rust 写，编成 wasm。你自己写，或者让 agent 写：Claude Code、Codex 都行，别的 agent 也行。
 
 要先有 Rust。没有就先到 [rustup.rs](https://rustup.rs) 装。
@@ -30,8 +30,8 @@ vibeplay push --watch         # 推到掌机上直接开，一改就再推
 | `web/` | 网页版的播放器：`vibeplay web` 把它和游戏塞进一个 HTML |
 | `skill/SKILL.md` | 给 agent 的说明。`vibeplay skill` 印出来 |
 | `templates/blank/` | `vibeplay new` 起的模板：《捡星星》 |
-| `examples/` | 四款做完的游戏，抄着做 |
-| `tools/` | 生成自带字体（`make-font.py`）、画样板游戏的封面（`game-covers.py`） |
+| `examples/` | 四款做完的游戏、五个小 app，抄着做 |
+| `tools/` | 生成自带字体（`make-font.py`）、画样板的封面（`game-covers.py`、`covers/`） |
 
 ## 四款样板
 
@@ -39,6 +39,16 @@ vibeplay push --watch         # 推到掌机上直接开，一改就再推
 - `thunder`《雷霆突击》：横版射击，四关，两个突击队员选一个。
 - `skyfire`《烈空战机》：竖版飞机射击，四关，每关最后一个大怪。
 - `ironcamp`《铁壳守营》：俯视的坦克战，二十关。
+
+## 五个小 app 样板
+
+不只是游戏。这几个只要几个按键，不联网：
+
+- `mathstar`《口算星星》：给孩子的口算。十道题，三选一，答对一道给一颗星。
+- `pixelpup`《像素小狗》：随真的时间会饿的像素小狗。A 喂饭，B 遛狗，夜里睡觉。
+- `deskclock`《桌面时钟》：放在键盘边上的大像素时钟，下面是个鱼缸。
+- `scorepad`《记分板》：2 到 6 个人的记分板，能撤销，能掷骰子。
+- `beatbox`《节拍盒》：八步的节拍器，四行，能调速度。
 
 `vibeplay run examples/courier` 开窗口玩，`vibeplay web examples/courier` 出网页版。
 

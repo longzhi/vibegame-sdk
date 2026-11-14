@@ -1,4 +1,4 @@
-//! VibePlay 写游戏的库。游戏是 QingOS 上的一个整屏 app：240×160、256 色、每秒 60 帧。
+//! VibePlay 写游戏和小 app 的库。它们都是 QingOS 上的一个整屏 app：240×160、256 色、每秒 60 帧。
 //!
 //! ```ignore
 //! use vibeplay::full::{Frame, Keys};
@@ -18,12 +18,15 @@
 //! - [`full`]：画面（`Frame`）、按键（`Keys`）、音调（`tone`）、精灵、地图块、镜头、音乐。
 //! - [`FONT`]：自带的点阵字，中文英文都有。
 //! - [`save`]、[`load`]：存档。存在掌机上这个游戏自己的地方。
+//! - [`now`]：现在的本地时间，时钟、宠物这种 app 用。
 //! - [`main!`]：游戏的入口。每帧调一次你交给 `app.every` 的函数。
 
 pub use qapp::full;
 pub use qapp::main;
 
 mod font;
+mod time;
+pub use time::{now, Time};
 /// 自带的点阵字：12 像素高，ASCII 和 GB2312 的全部字（缝合像素字体，OFL-1.1）。`frame.text(&FONT, x, y, "字", 颜色)`。
 pub use font::FONT;
 
