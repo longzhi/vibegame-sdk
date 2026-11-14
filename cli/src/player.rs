@@ -26,6 +26,11 @@ impl Player {
         Ok(Player { inner, frame_no: 0, last })
     }
 
+    /// 把钟定在 `start`（Unix 秒），时区偏移 `tz` 秒；以后每 60 帧走一秒。
+    pub fn set_clock(&mut self, start: i64, tz: i32) {
+        self.inner.set_clock(start, tz);
+    }
+
     pub fn full(&self) -> &Arc<Full> {
         self.inner.full()
     }

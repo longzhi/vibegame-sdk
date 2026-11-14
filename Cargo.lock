@@ -527,7 +527,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -1375,7 +1375,7 @@ dependencies = [
 [[package]]
 name = "qapp"
 version = "0.3.0"
-source = "git+https://github.com/second-state/qingos-sdk#15cd3fc8219128b48102f30f5774e26ae2dd2a85"
+source = "git+https://github.com/second-state/qingos-sdk#564b50d50fdc8969a2d1057f5c0f44470287204d"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1386,7 +1386,7 @@ dependencies = [
 [[package]]
 name = "qfull"
 version = "0.3.0"
-source = "git+https://github.com/second-state/qingos-sdk#15cd3fc8219128b48102f30f5774e26ae2dd2a85"
+source = "git+https://github.com/second-state/qingos-sdk#564b50d50fdc8969a2d1057f5c0f44470287204d"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1399,7 +1399,7 @@ dependencies = [
 [[package]]
 name = "qtypes"
 version = "0.3.0"
-source = "git+https://github.com/second-state/qingos-sdk#15cd3fc8219128b48102f30f5774e26ae2dd2a85"
+source = "git+https://github.com/second-state/qingos-sdk#564b50d50fdc8969a2d1057f5c0f44470287204d"
 dependencies = [
  "serde",
  "serde_json",
@@ -1473,7 +1473,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -1996,6 +1996,7 @@ name = "vibeplay-cli"
 version = "0.3.0"
 dependencies = [
  "anyhow",
+ "chrono",
  "cpal",
  "flate2",
  "minifb",
@@ -2365,7 +2366,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -2507,15 +2508,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f2f500e4d28234f72040990ec9d39e3a6b950f9f22d3dba18416c35882612bcb"
 dependencies = [
  "windows-targets 0.53.5",
-]
-
-[[package]]
-name = "windows-sys"
-version = "0.61.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ae137229bcbd6cdf0f7b80a31df61766145077ddf49416a728b02cb3921ff3fc"
-dependencies = [
- "windows-link",
 ]
 
 [[package]]
