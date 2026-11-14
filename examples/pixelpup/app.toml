@@ -5,6 +5,7 @@ title_zh  = "像素小狗"
 description    = "A pixel dog that gets hungry. Feed it with A, walk it with B."
 description_zh = "一只会饿的像素小狗：A 喂饭，B 遛狗"   # 集市上的介绍
 langs          = ["en", "zh"]
+kind           = "app"        # 应用，不是游戏：集市上放在「应用」那一栏
 version   = "0.1.0"
 command   = "bin/pixelpup.cwasm"
 screen    = "full"

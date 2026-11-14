@@ -5,6 +5,7 @@ title_zh  = "记分板"
 description    = "A score pad for game night. Two to six players, up and down change the score, A goes to the next player."
 description_zh = "聚会、打牌时用的记分板：二到六个人，上下加减分，A 换下一个人"   # 集市上的介绍
 langs          = ["en", "zh"]
+kind           = "app"        # 应用，不是游戏：集市上放在「应用」那一栏
 version   = "0.1.0"
 command   = "bin/scorepad.cwasm"
 screen    = "full"

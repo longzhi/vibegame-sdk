@@ -5,6 +5,7 @@ title_zh  = "口算星星"
 description    = "Math drills for kids. Ten questions, a star for each right answer. Within 10 or within 20."
 description_zh = "给孩子的口算：十道题，答对一道得一颗星。10 以内和 20 以内两档。"   # 集市上的介绍
 langs          = ["en", "zh"]
+kind           = "app"        # 应用，不是游戏：集市上放在「应用」那一栏
 version   = "0.1.0"
 command   = "bin/mathstar.cwasm"
 screen    = "full"
