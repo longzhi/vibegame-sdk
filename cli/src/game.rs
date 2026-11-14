@@ -34,6 +34,9 @@ pub struct AppSection {
     pub memory_mb: u64,
     #[serde(default)]
     pub cover: String,
+    /// 游戏还是应用：`game`（不写就是）或 `app`。集市按它分两栏。
+    #[serde(default)]
+    pub kind: String,
 }
 
 impl AppSection {
@@ -76,6 +79,9 @@ impl Game {
         }
         if !a.command.ends_with(".cwasm") || !a.command.starts_with("bin/") {
             bad.push(format!("command = \"{}\"：要 bin/<名字>.cwasm", a.command));
+        }
+        if !a.kind.is_empty() && a.kind != "game" && a.kind != "app" {
+            bad.push(format!("kind = \"{}\"：游戏写 game（不写也是），应用写 app", a.kind));
         }
         if !a.cover.is_empty() {
             let c = dir.join(&a.cover);

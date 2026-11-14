@@ -6,6 +6,7 @@ title_zh    = "桌面时钟"
 description    = "A big pixel clock for next to your keyboard, with a fish tank under it. The tank light follows the hour."
 description_zh = "放在键盘边上的大字像素时钟，底下一个鱼缸：白天亮、傍晚暖、夜里鱼睡觉"   # 集市上的介绍
 langs          = ["en", "zh"]
+kind           = "app"        # 应用，不是游戏：集市上放在「应用」那一栏
 version     = "0.1.0"
 command     = "bin/deskclock.cwasm"
 screen      = "full"

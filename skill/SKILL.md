@@ -88,6 +88,8 @@ vibeplay pair 192.168.1.23 && vibeplay push # 推到掌机上直接开（掌机�
 - 聚会用的：记分板、骰子、抽签、倒计时。
 - 音乐玩具：节拍器、音序器、把按键当琴。
 
+清单里写 `kind = "app"`，集市上就放在「应用」那一栏。
+
 不适合的，先跟人说清楚：
 - 要打很多字的（记事、聊天）：掌机没有键盘，也没有触摸屏和麦克风。
 - 要联网的（天气、股价）：先不做。联网要在清单写 `hosts`，样板都不联网。
@@ -246,6 +248,7 @@ https://github.com/second-state/vibeplay-sdk/tree/main/examples 有四款做完�
 - 第一次要人做两件事，agent 替不了：`vibeplay login`（在浏览器里输码登录 GitHub），第一次 `publish` 时在终端里答应条款（输 yes）。
 - 清单要有 `description`（集市上的一两句介绍，可以加 `description_zh`）和 `cover`。名字不能和预装的游戏一样。
 - 清单写 `langs = ["en"]` 或 `["en", "zh"]`：游戏里的字用哪几种语言。只能是 en、zh。
+- 应用（不是游戏的）在清单写 `kind = "app"`：集市分「游戏」「应用」两栏。不写就是游戏。
 - `vibeplay publish` 先在这台电脑上查清单、不开窗口跑 600 帧、截三张图，再打包上传。出错就照它说的改。
 - 每发一次，`version` 要往上加（0.1.0 → 0.1.1）。发错了不能退回，发一个更大的版本。
 - `vibeplay status` 看上没上架、装了几次、最近没过的原因。`vibeplay unpublish <名字>` 下架，已经装了的掌机照常用。
